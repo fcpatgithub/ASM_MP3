@@ -1,0 +1,36 @@
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#include	<resource.h>
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#define		DLG_MAIN	1000
+#define		ID_BROWSE	1001
+#define		ID_FILE		1002
+
+#define IDM_TEST 200
+#define IDM_HELLO 201
+#define IDM_GOODBYE 202 
+#define IDM_EXIT 203
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+1		ICON		"Main.ico"
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+DLG_MAIN	DIALOG DISCARDABLE  0, 0, 282, 49
+STYLE		DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION		"Mp3 Player"
+FONT		9, "ËÎÌו"
+BEGIN
+    EDITTEXT        ID_FILE,		20,20,170,12,	ES_AUTOHSCROLL
+    PUSHBUTTON	    "&Browse",		ID_BROWSE,	198,19,32,14
+    DEFPUSHBUTTON   "&Play",		IDOK,		233,19,32,14
+    GROUPBOX        "Open MP3 file",	-1,		9,6,262,35
+END
+
+FirstMenu MENU 
+{ 
+ POPUP "&Files" 
+        { 
+         MENUITEM "&Browse",ID_BROWSE
+         MENUITEM "Say &GoodBye", IDM_GOODBYE 
+         MENUITEM SEPARATOR 
+         MENUITEM "E&xit",IDM_EXIT 
+        } 
+ MENUITEM "&Play/Stop", IDM_TEST
+} 
