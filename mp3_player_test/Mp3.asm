@@ -145,23 +145,29 @@ _GetFileName	proc
 		invoke	SetDlgItemText,hWinMain,ID_FILE,addr szBuffer
 		;INVOKE MessageBox, hWinMain, ADDR Test_string, OFFSET WindowName, MB_OK 
 		call	_StopPlayMP3
-
 		ret
 
 _GetFileName	endp
 ;********************************************************************
 _PlayMP3	proc
+		
+		local	@stMCIPlay:MCI_GENERIC_PARMS
 		local	@stMCIOpen:MCI_OPEN_PARMS
-		local	@stMCIPlay:MCI_PLAY_PARMS
+		mov ebx, dwFlag
+		.if ebx == 0
+			mov	@stMCIOpen.lpstrDeviceType,offset szDevice
+			mov	@stMCIOpen.lpstrElementName,offset szBuffer
+			invoke	mciSendCommand,0,MCI_OPEN,MCI_OPEN_TYPE or MCI_OPEN_ELEMENT,addr @stMCIOpen
+			mov	eax,@stMCIOpen.wDeviceID
+			mov	hDevice,eax
+			mov	eax,hWinMain
+			mov	@stMCIPlay.dwCallback,eax
+			invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
+		.else
 
-		mov	@stMCIOpen.lpstrDeviceType,offset szDevice
-		mov	@stMCIOpen.lpstrElementName,offset szBuffer
-		invoke	mciSendCommand,0,MCI_OPEN,MCI_OPEN_TYPE or MCI_OPEN_ELEMENT,addr @stMCIOpen
-		mov	eax,@stMCIOpen.wDeviceID
-		mov	hDevice,eax
-		mov	eax,hWinMain
-		mov	@stMCIPlay.dwCallback,eax
-		invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
+			invoke	mciSendCommand,hDevice,MCI_RESUME,MCI_NOTIFY,addr @stMCIPlay
+		.endif
+			
 		.if	eax == 0
 			invoke	SetDlgItemText,hWinMain,IDOK,offset szStop
 			mov	dwFlag,1
@@ -171,6 +177,19 @@ _PlayMP3	proc
 		ret
         
 _PlayMP3	endp
+;********************************************************************
+_PausePlayMP3	proc
+		local	@stMCIStop:MCI_GENERIC_PARMS
+		
+		mov	eax,hWinMain
+		mov	@stMCIStop.dwCallback,eax
+		invoke	mciSendCommand,hDevice,MCI_PAUSE,MCI_NOTIFY,addr @stMCIStop
+		;invoke	mciSendCommand,hDevice,MCI_CLOSE,MCI_NOTIFY,addr @stMCIStop
+		invoke	SetDlgItemText,hWinMain,IDOK,offset szPlay
+		mov	dwFlag,2
+		ret
+
+_PausePlayMP3	endp
 ;********************************************************************
 _StopPlayMP3	proc
 		local	@stMCIStop:MCI_GENERIC_PARMS
@@ -201,10 +220,10 @@ _ProcDlgMain	proc	uses ebx edi esi, \
 			.if	eax == ID_BROWSE
 				call	_GetFileName
 			.elseif eax == IDOK
-				.if	dwFlag == 0
+				.if	dwFlag == 0 || dwFlag == 2
 					call	_PlayMP3
 				.else
-					call	_StopPlayMP3
+					call	_PausePlayMP3
 				.endif
 			.endif
 		.else
@@ -233,10 +252,10 @@ WinProc PROC,
 	mov ebx, wParam
 	.IF ebx == IDM_TEST
 ;		INVOKE MessageBox, hWnd, ADDR Test_string, OFFSET WindowName, MB_OK 
-		.IF dwFlag == 0
+		.IF dwFlag == 0 ||  dwFlag == 2
 			call _PlayMP3
 		.ELSE
-			call _StopPlayMP3
+			call _PausePlayMP3
 		.ENDIF
 	.ELSEIF ebx == ID_BROWSE
 ;		INVOKE MessageBox, hWnd, ADDR Hello_string, OFFSET WindowName, MB_OK 
