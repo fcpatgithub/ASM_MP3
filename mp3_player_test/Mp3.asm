@@ -88,6 +88,9 @@ ErrorTitle  BYTE "Error",0
 WindowName  BYTE "ASM Windows App",0
 className   BYTE "ASMWin",0
 
+barName  BYTE "scrollbar",0
+barclassName   BYTE "scrollbar",0
+
 ; Define the Application's Window class structure.
 MainWin WNDCLASS <NULL,WinProc,NULL,NULL,NULL,NULL,NULL, \
 	COLOR_WINDOW,NULL,className>
@@ -349,6 +352,9 @@ start:
 		  call ErrorHandler
 		  jmp  Exit_Program
 		.ENDIF
+
+		INVOKE CreateWindowEx, 0, ADDR barclassName,
+		  ADDR barName,WS_CHILD+WS_VISIBLE,50,50,200,20,hWinMain,NULL,hInstance,NULL
 
 ; Show and draw the window.
 		INVOKE ShowWindow, hWinMain, SW_SHOW
