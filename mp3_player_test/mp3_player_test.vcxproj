@@ -18,6 +18,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Main.ico" />
+    <Image Include="mainicon.ico" />
+    <Image Include="play.bmp" />
+    <Image Include="play24.bmp" />
+    <Image Include="play256.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5615CB56-443D-4C59-B1A0-70D00A06FED7}</ProjectGuid>
@@ -49,8 +53,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>include;$(IncludePath)</IncludePath>
-    <LibraryPath>lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\fcp\Documents\Visual Studio 2012\Projects\mp3_player_test\mp3_player_test\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\fcp\Documents\Visual Studio 2012\Projects\mp3_player_test\mp3_player_test\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -59,7 +63,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>lib;C:\Irvine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\masm32\lib;C:\Irvine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>start</EntryPointSymbol>
     </Link>

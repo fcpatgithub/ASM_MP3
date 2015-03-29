@@ -26,13 +26,14 @@ include		comctl32.inc
 include		comdlg32.inc
 include		winmm.inc
 include     msgstruct.inc
-;include     GraphWin.inc
+include     Gdi32.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
 includelib	comctl32.lib
 includelib	comdlg32.lib
 includelib	winmm.lib
+includelib  Gdi32.lib
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
@@ -96,17 +97,39 @@ msg	      MSGStruct <>
 winRect   RECT <>
 hWinMain  DWORD ?
 hInstance DWORD ?
-;hMenu	DWORD ?
+hButton DWORD ?
+hToolBar DWORD ?
+hEdit DWORD ?
+
+hIcon DWORD ?
+
+hRect DWORD ?
+
+hPlay DWORD ?
+hPlayD DWORD ?
 
 MyMenu BYTE "FirstMenu", 0
 Test_string BYTE "You selected Test menu item",0 
 Hello_string BYTE "Hello, my friend",0 
 Goodbye_string BYTE "See you again, bye",0 
 
+ButtonClassName BYTE "button", 0
+ButtonText BYTE " ", 0
+
+EditClassName BYTE "EditClass", 0
+
+.const
 IDM_TEST equ 200                   ; Menu IDs 
 IDM_HELLO equ 201
 IDM_GOODBYE equ 202 
 IDM_EXIT equ 203
+
+ButtonID EQU 400
+EditID EQU 230
+
+IDB_MYBITMAP EQU 100
+IDB_PLAY EQU 250
+IDB_PLAYD EQU 251
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
@@ -124,7 +147,6 @@ if		DEBUG
 endif
 
 ;include		Win.asm
-
 ;********************************************************************
 _GetFileName	proc
 
@@ -223,6 +245,7 @@ _ProcDlgMain	endp
 ;-----------------------------------------------------
 WinProc PROC,
 	hWnd:DWORD, localMsg:DWORD, wParam:DWORD, lParam:DWORD
+
 ; The application's message handler, which handles
 ; application-specific messages. All other messages
 ; are forwarded to the default Windows message
@@ -232,34 +255,38 @@ WinProc PROC,
 	push ebx
 	mov ebx, wParam
 	.IF ebx == IDM_TEST
-;		INVOKE MessageBox, hWnd, ADDR Test_string, OFFSET WindowName, MB_OK 
-		.IF dwFlag == 0
-			call _PlayMP3
-		.ELSE
-			call _StopPlayMP3
-		.ENDIF
 	.ELSEIF ebx == ID_BROWSE
-;		INVOKE MessageBox, hWnd, ADDR Hello_string, OFFSET WindowName, MB_OK 
 		call _GetFileName
 	.ELSEIF ebx == IDM_GOODBYE
 		INVOKE MessageBox, hWnd, ADDR Goodbye_string, OFFSET WindowName, MB_OK 
+	.ELSEIF ebx == ButtonID
+		INVOKE SendMessage, hButton, BM_GETIMAGE, IMAGE_BITMAP, NULL
+		.IF dwFlag == 0
+			INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPlayD
+			call _PlayMP3
+		.ELSE
+			INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
+			call _StopPlayMP3
+		.ENDIF
 	.ENDIF
 	pop ebx
 	.IF eax == WM_LBUTTONDOWN		; mouse button?
-;	  INVOKE MessageBox, hWnd, ADDR PopupText,
-;	    ADDR PopupTitle, MB_OK 
 	  jmp WinProcExit
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
-;		INVOKE MessageBox, hWnd, ADDR PopupText2,
-;		ADDR PopupTitle2, MB_OK
 		jmp WinProcExit
 	.ELSEIF eax == WM_CREATE		; create window?
-;	  INVOKE MessageBox, hWnd, ADDR AppLoadMsgText,
-;	    ADDR AppLoadMsgTitle, MB_OK
+		INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
+			ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
+			10, 10, 50, 50, hWnd, ButtonID, hInstance, NULL
+		mov hButton, eax
+		INVOKE LoadImage, hInstance, IDB_PLAY, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+		mov hPlay, eax
+		INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, eax
+		INVOKE CreateEllipticRgn, 0, 0, 50, 50
+		mov hRect, eax
+		INVOKE SetWindowRgn, hButton, hRect, TRUE
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
-;	  INVOKE MessageBox, hWnd, ADDR CloseMsg,
-;	    ADDR WindowName, MB_OK
 	  INVOKE PostQuitMessage,0
 	  jmp WinProcExit
 	.ELSE		; other message?
@@ -297,9 +324,17 @@ messageID  DWORD ?
 ErrorHandler ENDP
 ;********************************************************************
 start:
+	mov	hInstance,0
 		invoke	InitCommonControls
+		mov eax, eax
 		invoke	GetModuleHandle,NULL
 		mov	hInstance,eax
+
+; Load Bitmap
+;		INVOKE LoadBitmap, hInstance, IDB_MYBITMAP
+;		mov hBitmap, eax
+		INVOKE LoadImage, hInstance, IDB_PLAYD, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+		mov hPlayD, eax
 
 ; Load the program's icon and cursor.
 		INVOKE LoadIcon, NULL, IDI_APPLICATION

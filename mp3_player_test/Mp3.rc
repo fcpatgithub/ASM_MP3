@@ -9,6 +9,13 @@
 #define IDM_HELLO 201
 #define IDM_GOODBYE 202 
 #define IDM_EXIT 203
+
+#define IDB_MYBITMAP 100
+#define IDB_PLAY 250
+#define IDB_PLAYD 251
+IDB_MYBITMAP BITMAP "test.bmp"
+IDB_PLAY BITMAP "play.bmp"
+IDB_PLAYD BITMAP "playd.bmp"
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 1		ICON		"Main.ico"
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

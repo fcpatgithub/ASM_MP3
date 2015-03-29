@@ -28,5 +28,17 @@
     <Image Include="Main.ico">
       <Filter>資源檔</Filter>
     </Image>
+    <Image Include="mainicon.ico">
+      <Filter>資源檔</Filter>
+    </Image>
+    <Image Include="play.bmp">
+      <Filter>資源檔</Filter>
+    </Image>
+    <Image Include="play24.bmp">
+      <Filter>資源檔</Filter>
+    </Image>
+    <Image Include="play256.bmp">
+      <Filter>資源檔</Filter>
+    </Image>
   </ItemGroup>
 </Project>
