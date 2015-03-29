@@ -88,8 +88,8 @@ ErrorTitle  BYTE "Error",0
 WindowName  BYTE "ASM Windows App",0
 className   BYTE "ASMWin",0
 
-barName  BYTE "scrollbar",0
-barclassName   BYTE "scrollbar",0
+barName  BYTE "msctls_trackbar32",0
+barclassName   BYTE "msctls_trackbar32",0
 
 ; Define the Application's Window class structure.
 MainWin WNDCLASS <NULL,WinProc,NULL,NULL,NULL,NULL,NULL, \
@@ -98,6 +98,7 @@ MainWin WNDCLASS <NULL,WinProc,NULL,NULL,NULL,NULL,NULL, \
 msg	      MSGStruct <>
 winRect   RECT <>
 hWinMain  DWORD ?
+hWinBar  DWORD ?
 hInstance DWORD ?
 ;hMenu	DWORD ?
 
@@ -354,8 +355,8 @@ start:
 		.ENDIF
 
 		INVOKE CreateWindowEx, 0, ADDR barclassName,
-		  ADDR barName,WS_CHILD+WS_VISIBLE,50,50,200,20,hWinMain,NULL,hInstance,NULL
-
+		  ADDR barName,WS_CHILD+WS_VISIBLE,50,50,300,40,hWinMain,NULL,hInstance,NULL
+		mov hWinBar, eax
 ; Show and draw the window.
 		INVOKE ShowWindow, hWinMain, SW_SHOW
 		INVOKE UpdateWindow, hWinMain
