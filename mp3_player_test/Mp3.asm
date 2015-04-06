@@ -1,23 +1,6 @@
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-;	
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DEBUG		=	0
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-;	
-;	
-;	
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-;	
-;	
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-		.386
-		.model flat, stdcall
-		option casemap :none   ; case sensitive
-
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-;	
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+.386
+.model flat, stdcall
+option casemap :none   ; case sensitive
 
 include		windows.inc
 include		user32.inc
@@ -26,13 +9,19 @@ include		comctl32.inc
 include		comdlg32.inc
 include		winmm.inc
 include     msgstruct.inc
-;include     GraphWin.inc
+include     Gdi32.inc
+include		masm32rt.inc
+
 
 includelib	user32.lib
 includelib	kernel32.lib
 includelib	comctl32.lib
 includelib	comdlg32.lib
 includelib	winmm.lib
+includelib  Gdi32.lib
+
+;include		PlayMusic.inc
+include		MusicList.inc
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
@@ -46,16 +35,13 @@ ID_FILE		equ		1002
 ;	
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-		.data?
-
+.data?
 dwFlag		dd	?
-;hWinMain	dd	?
-;hInstance	dd	?
 hDevice		dd	?
 szBuffer	db	256 dup	(?)
 stOpenFileName	OPENFILENAME	<?>
 
-		.data
+.data
 
 szCaption	db	"Error...",0
 szError		db	"Error to play MP3 file!",0
@@ -96,34 +82,67 @@ msg	      MSGStruct <>
 winRect   RECT <>
 hWinMain  DWORD ?
 hInstance DWORD ?
-;hMenu	DWORD ?
+hButton DWORD ?
+hToolBar DWORD ?
+hEdit DWORD ?
+hWinBar DWORD ?
+
+hIcon DWORD ?
+
+hRect DWORD ?
+
+hPlay DWORD ?
+hPlayD DWORD ?
 
 MyMenu BYTE "FirstMenu", 0
 Test_string BYTE "You selected Test menu item",0 
 Hello_string BYTE "Hello, my friend",0 
 Goodbye_string BYTE "See you again, bye",0 
 
+ButtonClassName BYTE "button", 0
+ButtonText BYTE " ", 0
+barName  BYTE "msctls_trackbar32",0
+barclassName   BYTE "msctls_trackbar32",0
+
+EditClassName BYTE "EditClass", 0
+
+
+public hList
+public  template
+public musicList
+public musicListLen
+
+ListViewClassName	db "SysListView32",0
+hList  dd  ?
+template db "%lu",0
+musicList musicInfo MAX_LIST_LEN dup(<>)
+musicListLen DWORD 0
+
+.const
 IDM_TEST equ 200                   ; Menu IDs 
 IDM_HELLO equ 201
 IDM_GOODBYE equ 202 
 IDM_EXIT equ 203
 
+playBtn_ID EQU 400
+EditID EQU 230
+
+IDB_MYBITMAP EQU 100
+IDB_PLAY EQU 250
+IDB_PLAYD EQU 251
+
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 _ProcDlgMain	PROTO	:DWORD,:DWORD,:DWORD,:DWORD
-
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 		.code
 
-if		DEBUG
-	include		Debug.asm
-endif
 
-;include		Win.asm
+
 
 ;********************************************************************
 _GetFileName	proc
@@ -145,6 +164,7 @@ _GetFileName	proc
 		invoke	SetDlgItemText,hWinMain,ID_FILE,addr szBuffer
 		;INVOKE MessageBox, hWinMain, ADDR Test_string, OFFSET WindowName, MB_OK 
 		call	_StopPlayMP3
+
 		ret
 
 _GetFileName	endp
@@ -220,10 +240,10 @@ _ProcDlgMain	proc	uses ebx edi esi, \
 			.if	eax == ID_BROWSE
 				call	_GetFileName
 			.elseif eax == IDOK
-				.if	dwFlag == 0 || dwFlag == 2
+				.if	dwFlag == 0
 					call	_PlayMP3
 				.else
-					call	_PausePlayMP3
+					call	_StopPlayMP3
 				.endif
 			.endif
 		.else
@@ -242,6 +262,7 @@ _ProcDlgMain	endp
 ;-----------------------------------------------------
 WinProc PROC,
 	hWnd:DWORD, localMsg:DWORD, wParam:DWORD, lParam:DWORD
+
 ; The application's message handler, which handles
 ; application-specific messages. All other messages
 ; are forwarded to the default Windows message
@@ -251,34 +272,44 @@ WinProc PROC,
 	push ebx
 	mov ebx, wParam
 	.IF ebx == IDM_TEST
-;		INVOKE MessageBox, hWnd, ADDR Test_string, OFFSET WindowName, MB_OK 
-		.IF dwFlag == 0 ||  dwFlag == 2
-			call _PlayMP3
-		.ELSE
-			call _PausePlayMP3
-		.ENDIF
 	.ELSEIF ebx == ID_BROWSE
-;		INVOKE MessageBox, hWnd, ADDR Hello_string, OFFSET WindowName, MB_OK 
 		call _GetFileName
 	.ELSEIF ebx == IDM_GOODBYE
 		INVOKE MessageBox, hWnd, ADDR Goodbye_string, OFFSET WindowName, MB_OK 
+	.ELSEIF ebx == playBtn_ID
+		INVOKE SendMessage, hButton, BM_GETIMAGE, IMAGE_BITMAP, NULL
+		.IF dwFlag == 0 || dwFlag == 2
+			INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPlayD
+			call _PlayMP3
+		.ELSE
+			INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
+			call _PausePlayMP3
+		.ENDIF
 	.ENDIF
 	pop ebx
 	.IF eax == WM_LBUTTONDOWN		; mouse button?
-;	  INVOKE MessageBox, hWnd, ADDR PopupText,
-;	    ADDR PopupTitle, MB_OK 
 	  jmp WinProcExit
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
-;		INVOKE MessageBox, hWnd, ADDR PopupText2,
-;		ADDR PopupTitle2, MB_OK
 		jmp WinProcExit
 	.ELSEIF eax == WM_CREATE		; create window?
-;	  INVOKE MessageBox, hWnd, ADDR AppLoadMsgText,
-;	    ADDR AppLoadMsgTitle, MB_OK
+		invoke CreateListWin, hWnd, hInstance	
+		;invoke CreateWindowEx, NULL, addr ListViewClassName, NULL, LVS_LIST+WS_CHILD+WS_VISIBLE, 100,100,50,50,hWnd, NULL, hInstance, NULL
+
+		INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
+			ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
+			10, 10, 50, 50, hWnd, playBtn_ID, hInstance, NULL
+		mov hButton, eax
+		INVOKE LoadImage, hInstance, IDB_PLAY, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+		mov hPlay, eax
+		INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, eax	
+		INVOKE CreateEllipticRgn, 0, 0, 50, 50							
+		mov hRect, eax
+		INVOKE SetWindowRgn, hButton, hRect, TRUE
+
+            
+		
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
-;	  INVOKE MessageBox, hWnd, ADDR CloseMsg,
-;	    ADDR WindowName, MB_OK
 	  INVOKE PostQuitMessage,0
 	  jmp WinProcExit
 	.ELSE		; other message?
@@ -316,9 +347,15 @@ messageID  DWORD ?
 ErrorHandler ENDP
 ;********************************************************************
 start:
+	mov	hInstance,0
 		invoke	InitCommonControls
+		mov eax, eax
 		invoke	GetModuleHandle,NULL
 		mov	hInstance,eax
+
+; Load Bitmap
+		INVOKE LoadImage, hInstance, IDB_PLAYD, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+		mov hPlayD, eax
 
 ; Load the program's icon and cursor.
 		INVOKE LoadIcon, NULL, IDI_APPLICATION
@@ -349,6 +386,11 @@ start:
 		  call ErrorHandler
 		  jmp  Exit_Program
 		.ENDIF
+
+; Bar
+		INVOKE CreateWindowEx, 0, ADDR barclassName,
+		ADDR barName,WS_CHILD+WS_VISIBLE,70,70,200,20,hWinMain,NULL,hInstance,NULL
+		mov hWinBar, eax
 
 ; Show and draw the window.
 		INVOKE ShowWindow, hWinMain, SW_SHOW

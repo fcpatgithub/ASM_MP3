@@ -12,12 +12,23 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Mp3.asm" />
+    <MASM Include="MusicList.asm" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Mp3.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Main.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MusicList.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5615CB56-443D-4C59-B1A0-70D00A06FED7}</ProjectGuid>
@@ -56,6 +67,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -15,11 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Mp3.asm">
-      <Filter>原始程式檔</Filter>
-    </MASM>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Mp3.rc">
       <Filter>資源檔</Filter>
     </ResourceCompile>
@@ -28,5 +23,18 @@
     <Image Include="Main.ico">
       <Filter>資源檔</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MusicList.inc">
+      <Filter>標頭檔</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Mp3.asm">
+      <Filter>原始程式檔</Filter>
+    </MASM>
+    <MASM Include="MusicList.asm">
+      <Filter>原始程式檔</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
