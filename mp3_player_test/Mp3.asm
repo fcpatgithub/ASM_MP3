@@ -278,7 +278,7 @@ WinProc PROC,
 	push ebx
 	mov ebx, wParam
 	.IF ebx == IDM_TEST
-<<<<<<< HEAD
+
 	.ELSEIF ebx == ID_BROWSE
 		call _GetFileName
 	.ELSEIF ebx == IDM_GOODBYE
@@ -291,13 +291,12 @@ WinProc PROC,
 		.ELSE
 			INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
 			call _StopPlayMP3
-=======
+		.ENDIF
 ;		INVOKE MessageBox, hWnd, ADDR Test_string, OFFSET WindowName, MB_OK 
 		.IF dwFlag == 0 ||  dwFlag == 2
 			call _PlayMP3
 		.ELSE
 			call _PausePlayMP3
->>>>>>> origin/master
 		.ENDIF
 	.ENDIF
 	pop ebx
