@@ -5,17 +5,12 @@
 #define		ID_BROWSE	1001
 #define		ID_FILE		1002
 
-#define IDM_TEST 200
-#define IDM_HELLO 201
-#define IDM_GOODBYE 202 
 #define IDM_EXIT 203
 
-#define IDB_MYBITMAP 100
 #define IDB_PLAY 250
-#define IDB_PLAYD 251
-IDB_MYBITMAP BITMAP "resource/image/test.bmp"
+#define IDB_PAUSE 251
 IDB_PLAY BITMAP "resource/image/play.bmp"
-IDB_PLAYD BITMAP "resource/image/playd.bmp"
+IDB_PAUSE BITMAP "resource/image/pause.bmp"
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 1		ICON		"Main.ico"
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -35,9 +30,7 @@ FirstMenu MENU
  POPUP "&Files" 
         { 
          MENUITEM "&Browse",ID_BROWSE
-         MENUITEM "Say &GoodBye", IDM_GOODBYE 
          MENUITEM SEPARATOR 
          MENUITEM "E&xit",IDM_EXIT 
         } 
- MENUITEM "&Play/Stop", IDM_TEST
 } 

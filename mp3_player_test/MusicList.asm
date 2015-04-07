@@ -11,7 +11,6 @@ include		comctl32.inc
 include		comdlg32.inc
 include		winmm.inc
 include     msgstruct.inc
-;include    GraphWin.inc
 include		masm32rt.inc
 include		MusicList.inc
 

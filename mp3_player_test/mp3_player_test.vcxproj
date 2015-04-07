@@ -11,11 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="Control.asm" />
     <MASM Include="Mp3.asm" />
     <MASM Include="MusicList.asm" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Mp3.rc" />
+    <MASM Include="Track.asm" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Main.ico" />
@@ -28,7 +27,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Control.inc" />
     <None Include="MusicList.inc" />
+    <None Include="Track.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Mp3.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5615CB56-443D-4C59-B1A0-70D00A06FED7}</ProjectGuid>
