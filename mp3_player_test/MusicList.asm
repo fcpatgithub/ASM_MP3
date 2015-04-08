@@ -175,6 +175,30 @@ ShowFileInfo proc uses edi row:DWORD, lpFind:DWORD
 	ret
 ShowFileInfo endp
 
+ShowMusicItem proc uses edx eax ebx, row:DWORD
+	LOCAL lvi:LV_ITEM
+	
+
+	mov lvi.imask,LVIF_TEXT+LVIF_PARAM
+	push row
+	pop lvi.iItem	
+	mov lvi.iSubItem,0
+
+	mov eax, row
+	mov ebx, INFO_LEN
+	mul ebx
+	add eax, OFFSET musicList
+	add eax, PATH_LEN
+	mov lvi.pszText,eax
+
+	push row
+	pop lvi.lParam
+	invoke SendMessage,hList, LVM_INSERTITEM,0, addr lvi
+
+	ret
+ShowMusicItem endp
+
+
 
 FillFileInfo proc uses edi
 	LOCAL finddata:WIN32_FIND_DATA
@@ -182,21 +206,36 @@ FillFileInfo proc uses edi
 	LOCAL lina:DWORD
 	
 	invoke GetList
+	xor edi, edi
+L1:
+	.IF edi < musicListLen
+		invoke ShowMusicItem, edi
+		inc edi
+		jmp L1
+	.ENDIF
 
+
+COMMENT *
 	invoke FindFirstFile,addr ListName,addr finddata
 	.if eax!=INVALID_HANDLE_VALUE
 		mov FHandle,eax
-		xor edi,edi
+		xor ebx,ebx
 		.while eax!=0
 			test finddata.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY
 			.if ZERO?
-				invoke ShowFileInfo,edi, addr finddata
-				inc edi
+				;invoke ShowFileInfo,edi, addr finddata
+L1:
+				.IF ebx < musicListLen
+				invoke ShowMusicItem, ebx
+				inc ebx
+				jmp L1
+				.ENDIF
 			.endif
 			invoke FindNextFile,FHandle,addr finddata
 		.endw
 		invoke FindClose,FHandle
 	.endif
+*
 	ret
 FillFileInfo endp
 
