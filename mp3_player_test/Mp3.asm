@@ -151,12 +151,13 @@ WinProc PROC,
 			call _GetFileName
 		.ELSEIF ebx == playBtn_ID
 			INVOKE SwitchTrackState
-		.ELSEIF ebx == Bar_ID
-			INVOKE BarAdjust
 		.ENDIF
 ;	.ENDIF
 	pop ebx
-	.IF eax == WM_LBUTTONDOWN		; mouse button?
+	.IF eax == WM_HSCROLL
+	  INVOKE BarAdjust
+	  jmp WinProcExit
+	.ELSEIF eax == WM_LBUTTONDOWN		; mouse button?
 	  jmp WinProcExit
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
 		jmp WinProcExit

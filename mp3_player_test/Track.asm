@@ -25,6 +25,7 @@ extern hDevice			: DWORD
 extern szBuffer			: BYTE
 extern stOpenFileName	: OPENFILENAME
 extern hWinMain			: DWORD
+extern hWinBar			: DWORD
 extern Pos				: DWORD
 
 szCaption	BYTE	"Error...",0
@@ -142,5 +143,47 @@ _SeekMP3	proc
 		ret
         
 _SeekMP3	endp
+;********************************************************************
+_AutochangePosition		proc
+	local	@stMCIStatus:MCI_STATUS_PARMS
+	;.WHILE (1)
+		;.while (dwFlag != 1 )
+		;.endw
+		
+		.if (dwFlag == 1 )
+
+		push eax
+		push ecx
+		push edx
+
+		mov eax, MCI_STATUS_LENGTH
+		mov  @stMCIStatus.dwItem, eax
+		mov	eax,hWinMain
+		mov	@stMCIStatus.dwCallback,eax
+		invoke	mciSendCommand,hDevice,MCI_STATUS,MCI_STATUS_ITEM,addr @stMCIStatus
+		mov ecx, @stMCIStatus.dwReturn
+		push ecx
+		mov eax, MCI_STATUS_POSITION
+		mov  @stMCIStatus.dwItem, eax
+		mov	eax,hWinMain
+		mov	@stMCIStatus.dwCallback,eax
+		invoke	mciSendCommand,hDevice,MCI_STATUS,MCI_STATUS_ITEM,addr @stMCIStatus
+		mov eax, @stMCIStatus.dwReturn
+		pop ecx
+		mov edx, 0
+		imul eax, 100
+		div ecx
+
+		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, eax
+		mov Pos, eax
+
+		pop edx
+		pop ecx
+		pop eax
+
+		.endif
+	;.ENDW
+	ret
+_AutochangePosition			endp
 ;********************************************************************
 END

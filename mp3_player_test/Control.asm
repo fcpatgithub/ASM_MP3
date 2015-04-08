@@ -60,12 +60,14 @@ CreateTrackBar PROC,
 		ADDR barName,WS_CHILD+WS_VISIBLE,70,70,200,20, hWnd,Bar_ID,hIns,NULL
 	mov hWinBar, eax
 	INVOKE SendMessage, hWinBar, TBM_SETPAGESIZE, 0, 1
+	
 	ret
 
 CreateTrackBar ENDP
 ;********************************************************************
 SwitchTrackState PROC
 	INVOKE SendMessage, hButton, BM_GETIMAGE, IMAGE_BITMAP, NULL
+	INVOKE SetTimer, hWinBar,1,100, ADDR _AutochangePosition
 	.IF dwFlag == 0 || dwFlag == 2
 		INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPause
 		call _PlayMP3
