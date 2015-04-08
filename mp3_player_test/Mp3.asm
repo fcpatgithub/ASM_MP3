@@ -145,6 +145,7 @@ WinProc PROC,
 ; are forwarded to the default Windows message
 ; handler.
 ;-----------------------------------------------------
+	INVOKE SetTimer, hWinBar,1,100, ADDR _AutochangePosition
 	mov eax, localMsg
 	;push ebx
 	mov ebx, wParam
