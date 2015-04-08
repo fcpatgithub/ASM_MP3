@@ -26,6 +26,8 @@ extern szBuffer			: BYTE
 extern stOpenFileName	: OPENFILENAME
 extern hWinMain			: DWORD
 extern hWinBar			: DWORD
+extern hButton			: DWORD
+extern hPlay			: DWORD
 extern Pos				: DWORD
 
 szCaption	BYTE	"Error...",0
@@ -56,6 +58,8 @@ _GetFileName	proc
 		.if	eax == FALSE
 			ret
 		.endif
+		INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
+		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, 0
 		invoke	SetDlgItemText,hWinMain,ID_FILE,addr szBuffer
 		call	_StopPlayMP3
 
