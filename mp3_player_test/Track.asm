@@ -27,6 +27,7 @@ extern stOpenFileName	: OPENFILENAME
 extern hWinMain			: DWORD
 extern hWinBar			: DWORD
 extern Pos				: DWORD
+extern isDraging		: BYTE
 
 szCaption	BYTE	"Error...",0
 szError		BYTE	"Error to play MP3 file!",0
@@ -36,6 +37,7 @@ szDevice	BYTE	"MPEGVideo",0
 szTitleSave	BYTE	"Open MP3 file...",0
 szExt		BYTE	'*.mp3',0
 szFilter	BYTE	'MP3 Files(*.mp3)',0,'*.mp3',0,'All Files(*.*)',0,'*.*',0,0
+
 
 .code
 
@@ -150,7 +152,7 @@ _AutochangePosition		proc
 		;.while (dwFlag != 1 )
 		;.endw
 		
-		.if (dwFlag == 1 )
+		.if (dwFlag == 1 && isDraging == 0)
 
 		push eax
 		push ecx

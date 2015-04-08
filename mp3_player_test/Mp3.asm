@@ -84,11 +84,13 @@ MyMenu BYTE "FirstMenu", 0
 public template
 public musicList
 public musicListLen
+public isDraging
 
 ListViewClassName	db "SysListView32",0
 template db "%lu",0
 musicList musicInfo MAX_LIST_LEN dup(<>)
 musicListLen DWORD 0
+isDraging byte 0
 
 .const
 IDM_EXIT equ 203
@@ -144,19 +146,25 @@ WinProc PROC,
 ; handler.
 ;-----------------------------------------------------
 	mov eax, localMsg
-	push ebx
+	;push ebx
 	mov ebx, wParam
 ;	.IF eax == WM_COMMAND
 		.IF ebx == ID_BROWSE
 			call _GetFileName
-		.ELSEIF ebx == playBtn_ID
+		.ELSEIF bx == playBtn_ID
 			INVOKE SwitchTrackState
 		.ENDIF
 ;	.ENDIF
-	pop ebx
+	;pop ebx
 	.IF eax == WM_HSCROLL
-	  INVOKE BarAdjust
-	  jmp WinProcExit
+		.IF ebx == SB_ENDSCROLL
+			INVOKE BarAdjust
+			mov isDraging, 0
+		.ELSE
+			mov isDraging, 1
+		.ENDIF
+
+		jmp WinProcExit
 	.ELSEIF eax == WM_LBUTTONDOWN		; mouse button?
 	  jmp WinProcExit
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
