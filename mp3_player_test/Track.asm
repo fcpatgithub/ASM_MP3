@@ -69,7 +69,7 @@ _GetFileName	proc
 
 _GetFileName	endp
 ;********************************************************************
-_PlayMP3	proc
+_PlayMP3	proc 
 		
 		local	@stMCIPlay:MCI_GENERIC_PARMS
 		local	@stMCIOpen:MCI_OPEN_PARMS
@@ -97,6 +97,41 @@ _PlayMP3	proc
 		ret
         
 _PlayMP3	endp
+
+PlayMP3	proc musicPath : ptr BYTE
+		
+		local	@stMCIPlay:MCI_GENERIC_PARMS
+		local	@stMCIOpen:MCI_OPEN_PARMS
+
+		INVOKE _StopPlayMP3
+
+		mov ebx, dwFlag
+		.if ebx == 0
+			mov	@stMCIOpen.lpstrDeviceType, offset szDevice
+			mov eax, musicPath
+			mov	@stMCIOpen.lpstrElementName, eax
+			invoke	mciSendCommand,0,MCI_OPEN,MCI_OPEN_TYPE or MCI_OPEN_ELEMENT,addr @stMCIOpen
+			mov	eax,@stMCIOpen.wDeviceID
+			mov	hDevice,eax
+			mov	eax,hWinMain
+			mov	@stMCIPlay.dwCallback,eax
+			invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
+		.else
+
+			invoke	mciSendCommand,hDevice,MCI_RESUME,MCI_NOTIFY,addr @stMCIPlay
+		.endif
+			
+		.if	eax == 0
+			invoke	SetDlgItemText,hWinMain,IDOK,offset szStop
+			mov	dwFlag, 1
+		.else
+			invoke	MessageBox,hWinMain,addr szError,addr szCaption,MB_OK
+		.endif
+		ret
+        
+PlayMP3	endp
+
+
 ;********************************************************************
 _PausePlayMP3	proc
 		local	@stMCIStop:MCI_GENERIC_PARMS
