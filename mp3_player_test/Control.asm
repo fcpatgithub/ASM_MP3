@@ -28,6 +28,8 @@ extern hWinBar		: DWORD
 extern hRect		: DWORD
 extern hPlay		: DWORD
 extern hPause		: DWORD
+extern hNext		: DWORD
+extern hPrevious	: DWORD
 
 ButtonClassName BYTE "button", 0
 ButtonText BYTE " ", 0
@@ -87,5 +89,10 @@ BarAdjust PROC
 	pop eax
 	ret
 BarAdjust ENDP
+;********************************************************************
+CreatePlaybackButton PROC,
+	hWnd: DWORD, hIns: DWORD, mode: BYTE
+
+CreatePlaybackButton ENDP
 ;********************************************************************
 END

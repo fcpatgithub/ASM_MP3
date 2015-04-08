@@ -49,6 +49,8 @@ public hWinBar
 public hRect
 public hPlay
 public hPause
+public hNext
+public hPrevious
 public hList
 
 dwFlag			DWORD	?
@@ -56,14 +58,16 @@ hDevice			DWORD	?
 szBuffer		BYTE	256 dup	(?)
 stOpenFileName	OPENFILENAME	<?>
 Pos				DWORD	?
-hWinMain  DWORD ?
-hInstance DWORD ?
-hButton DWORD ?
-hWinBar DWORD ?
-hRect DWORD ?
-hPlay DWORD ?
-hPause DWORD ?
-hList  dd  ?
+hWinMain		DWORD ?
+hInstance		DWORD ?
+hButton			DWORD ?
+hWinBar			DWORD ?
+hRect			DWORD ?
+hPlay			DWORD ?
+hPause			DWORD ?
+hNext			DWORD ?
+hPrevious		DWORD ?
+hList			dd  ?
 
 
 .data
