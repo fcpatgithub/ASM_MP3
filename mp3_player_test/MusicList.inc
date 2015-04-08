@@ -10,7 +10,7 @@ CreateListWin			PROTO, hWnd: DWORD, hInstance: DWORD
 PATH_LEN		equ 256
 NAME_LEN		equ 64
 INFO_LEN		equ PATH_LEN+NAME_LEN+4
-MAX_LIST_LEN	equ 100
+MAX_LIST_LEN	equ 200
 
 musicInfo STRUCT
 	path BYTE PATH_LEN dup(0)

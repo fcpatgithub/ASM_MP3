@@ -20,15 +20,20 @@ includelib	comctl32.lib
 includelib	comdlg32.lib
 includelib	winmm.lib
 
+PlayMP3	proto musicPath : DWORD
+
 
 .data
 
+ListProP			dd 0
 ListViewClassName	db "SysListView32",0
 Heading1			db "Filename",0
 Heading2			db "Size",0
 ListName			db "list.txt",0
 ListName2			db "list2.txt",0
 
+
+extrn hWinMain		: DWORD
 extrn hList			: DWORD
 extrn template		: WORD
 extrn musicList		: musicInfo
@@ -175,6 +180,30 @@ ShowFileInfo proc uses edi row:DWORD, lpFind:DWORD
 	ret
 ShowFileInfo endp
 
+ShowMusicItem proc uses edx eax ebx, row:DWORD
+	LOCAL lvi:LV_ITEM
+	
+
+	mov lvi.imask,LVIF_TEXT+LVIF_PARAM
+	push row
+	pop lvi.iItem	
+	mov lvi.iSubItem,0
+
+	mov eax, row
+	mov ebx, INFO_LEN
+	mul ebx
+	add eax, OFFSET musicList
+	add eax, PATH_LEN
+	mov lvi.pszText,eax
+
+	push row
+	pop lvi.lParam
+	invoke SendMessage,hList, LVM_INSERTITEM,0, addr lvi
+
+	ret
+ShowMusicItem endp
+
+
 
 FillFileInfo proc uses edi
 	LOCAL finddata:WIN32_FIND_DATA
@@ -182,37 +211,124 @@ FillFileInfo proc uses edi
 	LOCAL lina:DWORD
 	
 	invoke GetList
+	xor edi, edi
+L1:
+	.IF edi < musicListLen
+		invoke ShowMusicItem, edi
+		inc edi
+		jmp L1
+	.ENDIF
 
+
+COMMENT *
 	invoke FindFirstFile,addr ListName,addr finddata
 	.if eax!=INVALID_HANDLE_VALUE
 		mov FHandle,eax
-		xor edi,edi
+		xor ebx,ebx
 		.while eax!=0
 			test finddata.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY
 			.if ZERO?
-				invoke ShowFileInfo,edi, addr finddata
-				inc edi
+				;invoke ShowFileInfo,edi, addr finddata
+L1:
+				.IF ebx < musicListLen
+				invoke ShowMusicItem, ebx
+				inc ebx
+				jmp L1
+				.ENDIF
 			.endif
 			invoke FindNextFile,FHandle,addr finddata
 		.endw
 		invoke FindClose,FHandle
 	.endif
+*
 	ret
 FillFileInfo endp
 
 
 
+
+
+
+ListProc proc   hCtl	: DWORD,
+                uMsg	: DWORD,
+                wParam	: DWORD,
+                lParam	: DWORD
+
+    LOCAL IndexItem  :DWORD
+    LOCAL Buffer[32] :BYTE
+	LOCAL lvi:LV_ITEM
+
+
+    .if uMsg == WM_LBUTTONDBLCLK
+      jmp DoIt
+    .elseif uMsg == WM_CHAR
+      .if wParam == 13
+        jmp DoIt
+      .endif
+    .endif
+    jmp EndDo
+
+ DoIt:
+        invoke SendMessage,hCtl,LVM_GETNEXTITEM,-1,LVNI_SELECTED
+        mov IndexItem, eax
+
+	   szText CurSel1,"-"
+comment*
+         .if eax ==-1
+          mov Buffer, '-'
+		  .elseif eax ==0
+		  mov Buffer, '0'
+		  .elseif eax ==1 
+		  mov Buffer, '1'
+		  .elseif eax ==2 
+		  mov Buffer, '2'
+		  .elseif eax ==3 
+		  mov Buffer, '3'
+		  .elseif eax ==4 
+		  mov Buffer, '4'
+		  .else
+		  mov Buffer, '6'
+		  .endif
+*
+	.IF eax != -1 
+		mov ebx, INFO_LEN
+		mul ebx
+		add eax, OFFSET musicList
+		invoke PlayMP3, eax
+
+	.ENDIF
+		
+		
+
+          ;invoke MessageBox,hWinMain,eax,ADDR CurSel1,MB_OK
+        
+
+EndDo:
+    invoke CallWindowProc,ListProP,hCtl,uMsg,wParam,lParam
+
+    ret
+
+ListProc endp
+
+
 CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
 	invoke CreateWindowEx, NULL, addr ListViewClassName, NULL, LVS_LIST+WS_CHILD+WS_VISIBLE, 100,100,500,500,hWnd, NULL, hInstance, NULL
+
+
 	mov hList, eax
+	invoke SetWindowLong,hList,GWL_WNDPROC,ListProc
+	mov ListProP, eax
 	invoke InsertColumn
 	invoke FillFileInfo
 	RGB 255,255,255
 	invoke SendMessage,hList,LVM_SETTEXTCOLOR,0,eax
-	RGB 0,0,0
+	RGB 200,200,200
 	invoke SendMessage,hList,LVM_SETBKCOLOR,0,eax
 	RGB 0,0,0
 	invoke SendMessage,hList,LVM_SETTEXTBKCOLOR,0,eax
+
+	
+
 	ret
 CreateListWin ENDP
 END
