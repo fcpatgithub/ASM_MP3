@@ -163,7 +163,10 @@ _SeekMP3	proc
 		local	@stMCISeek:MCI_SEEK_PARMS
 		local	@stMCIPlay:MCI_GENERIC_PARMS
 		mov ebx, dwFlag
-		.if (ebx == 1)
+		.if (ebx == 2)
+			invoke	mciSendCommand,hDevice,MCI_RESUME,MCI_NOTIFY,addr @stMCIPlay
+		.endif
+		.if (ebx == 1 || ebx == 2)
 			mov eax, MCI_STATUS_LENGTH
 			mov  @stMCIStatus.dwItem, eax
 			mov	eax,hWinMain
@@ -180,6 +183,10 @@ _SeekMP3	proc
 			mov	@stMCISeek.dwCallback,eax
 			invoke	mciSendCommand,hDevice,MCI_SEEK,MCI_TO+MCI_WAIT,addr @stMCISeek
 			invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
+		.endif
+			
+		.if (ebx == 2)
+			invoke	mciSendCommand,hDevice,MCI_PAUSE,MCI_NOTIFY,addr @stMCIPlay
 		.endif
 		ret
         
