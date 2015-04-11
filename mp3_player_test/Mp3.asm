@@ -47,7 +47,8 @@ public hInstance
 public hPlayButton
 public hNextButton
 public hWinBar
-public hSoundBar
+public hVolumeBar
+public volumePos
 public hRect
 public hPlay
 public hPause
@@ -60,12 +61,13 @@ hDevice			DWORD	?
 szBuffer		BYTE	256 dup	(?)
 stOpenFileName	OPENFILENAME	<?>
 Pos				DWORD	?
+volumePos		DWORD   ?
 hWinMain		DWORD ?
 hInstance		DWORD ?
 hPlayButton		DWORD ?
 hNextButton		DWORD ?
 hWinBar			DWORD ?
-hSoundBar       DWORD ?
+hVolumeBar       DWORD ?
 hRect			DWORD ?
 hPlay			DWORD ?
 hPause			DWORD ?
@@ -175,7 +177,7 @@ WinProc PROC,
 			.ELSE
 				mov isDraging, 1
 			.ENDIF
-		.ELSEIF (edx == hSoundBar)
+		.ELSEIF (edx == hVolumeBar)
 
 		.ENDIF
 		pop edx
@@ -187,7 +189,7 @@ WinProc PROC,
 	.ELSEIF eax == WM_CREATE		; create window?
 		INVOKE CreateListWin, hWnd, hInstance	
 		INVOKE CreateTrackBar, hWnd, hInstance
-		INVOKE CreateSoundBar, hWnd, hInstance
+		INVOKE CreateVolumeBar, hWnd, hInstance
 		INVOKE CreatePlayButton, hWnd, hInstance
 ;		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; not avaliable for now
 	  jmp WinProcExit

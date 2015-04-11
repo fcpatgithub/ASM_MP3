@@ -23,10 +23,11 @@ includelib	winmm.lib
 .data
 extern dwFlag			: DWORD
 extern Pos				: DWORD
+extern volumePos		: DWORD
 extern hPlayButton		: DWORD
 extern hNextButton		: DWORD
 extern hWinBar			: DWORD
-extern hSoundBar		: DWORD
+extern hVolumeBar		: DWORD
 extern hRect			: DWORD
 extern hPlay			: DWORD
 extern hPause			: DWORD
@@ -69,17 +70,17 @@ CreateTrackBar PROC,
 
 CreateTrackBar ENDP
 ;********************************************************************
-CreateSoundBar PROC,
+CreateVolumeBar PROC,
 	hWnd: DWORD, hIns: DWORD
 
 	INVOKE CreateWindowEx, NULL, ADDR barclassName,
 		ADDR barName,WS_CHILD+WS_VISIBLE,370,70,50,20, hWnd,Bar_ID,hIns,NULL
-	mov hSoundBar, eax
-	INVOKE SendMessage, hSoundBar, TBM_SETPAGESIZE, 0, 1
+	mov hVolumeBar, eax
+	INVOKE SendMessage, hVolumeBar, TBM_SETPAGESIZE, 0, 2
 	
 	ret
 
-CreateSoundBar ENDP
+CreateVolumeBar ENDP
 ;********************************************************************
 
 SwitchTrackState PROC
@@ -104,6 +105,17 @@ BarAdjust PROC
 	pop eax
 	ret
 BarAdjust ENDP
+;********************************************************************
+volumeBarAdjust PROC
+	push eax
+	INVOKE SendMessage, hVolumeBar, TBM_GETPOS, 0, 0
+	.IF (volumePos != eax)
+		mov volumePos, eax
+		;call _SeekMP3
+	.ENDIF
+	pop eax
+	ret
+volumeBarAdjust ENDP
 ;********************************************************************
 ; not avaliable for now
 ; logical coordinate <--> screen coordinate?
