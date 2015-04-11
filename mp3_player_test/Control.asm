@@ -21,15 +21,16 @@ includelib	comdlg32.lib
 includelib	winmm.lib
 
 .data
-extern dwFlag		: DWORD
-extern Pos			: DWORD
-extern hButton		: DWORD
-extern hWinBar		: DWORD
-extern hRect		: DWORD
-extern hPlay		: DWORD
-extern hPause		: DWORD
-extern hNext		: DWORD
-extern hPrevious	: DWORD
+extern dwFlag			: DWORD
+extern Pos				: DWORD
+extern hPlayButton		: DWORD
+extern hNextButton		: DWORD
+extern hWinBar			: DWORD
+extern hRect			: DWORD
+extern hPlay			: DWORD
+extern hPause			: DWORD
+extern hNext			: DWORD
+extern hPrevious		: DWORD
 
 ButtonClassName BYTE "button", 0
 ButtonText BYTE " ", 0
@@ -44,13 +45,13 @@ CreatePlayButton PROC,
 	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
 		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
 		10, 10, 50, 50, hWnd, playBtn_ID, hIns, NULL
-	mov hButton, eax
+	mov hPlayButton, eax
 	INVOKE LoadImage, hIns, IDB_PLAY, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
 	mov hPlay, eax
-	INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, eax	
+	INVOKE SendMessage, hPlayButton, BM_SETIMAGE, IMAGE_BITMAP, eax	
 	INVOKE CreateEllipticRgn, 0, 0, 50, 50							
 	mov hRect, eax
-	INVOKE SetWindowRgn, hButton, hRect, TRUE
+	INVOKE SetWindowRgn, hPlayButton, hRect, TRUE
 	ret
 
 CreatePlayButton ENDP
@@ -68,12 +69,12 @@ CreateTrackBar PROC,
 CreateTrackBar ENDP
 ;********************************************************************
 SwitchTrackState PROC
-	INVOKE SendMessage, hButton, BM_GETIMAGE, IMAGE_BITMAP, NULL
+	INVOKE SendMessage, hPlayButton, BM_GETIMAGE, IMAGE_BITMAP, NULL
 	.IF dwFlag == 0 || dwFlag == 2
-		INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPause
+		INVOKE SendMessage, hPlayButton, BM_SETIMAGE, IMAGE_BITMAP, hPause
 		call _PlayMP3
 	.ELSE
-		INVOKE SendMessage, hButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
+		INVOKE SendMessage, hPlayButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
 		call _PausePlayMP3
 	.ENDIF
 	ret
@@ -90,9 +91,24 @@ BarAdjust PROC
 	ret
 BarAdjust ENDP
 ;********************************************************************
+; not avaliable for now
+; logical coordinate <--> screen coordinate?
 CreatePlaybackButton PROC,
 	hWnd: DWORD, hIns: DWORD, mode: BYTE
+	; mode = 0 -> previous
+	; mode = 1 -> next
 
+	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
+		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
+		400, 10, 50, 50, hWnd, nextBtn_ID, hIns, NULL
+	mov hNextButton, eax
+;	INVOKE LoadImage, hIns, IDB_PLAY, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+;	mov hPlay, eax
+	INVOKE SendMessage, hNextButton, BM_SETIMAGE, IMAGE_BITMAP, hPause
+	INVOKE CreateEllipticRgn, 350, 10, 400, 30
+;	mov hRect, eax		
+;	INVOKE SetWindowRgn, hNextButton, hRect, TRUE
+	ret
 CreatePlaybackButton ENDP
 ;********************************************************************
 END

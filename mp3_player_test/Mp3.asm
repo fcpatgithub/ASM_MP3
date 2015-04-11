@@ -44,7 +44,8 @@ public stOpenFileName
 public Pos
 public hWinMain
 public hInstance
-public hButton
+public hPlayButton
+public hNextButton
 public hWinBar
 public hRect
 public hPlay
@@ -60,7 +61,8 @@ stOpenFileName	OPENFILENAME	<?>
 Pos				DWORD	?
 hWinMain		DWORD ?
 hInstance		DWORD ?
-hButton			DWORD ?
+hPlayButton		DWORD ?
+hNextButton		DWORD ?
 hWinBar			DWORD ?
 hRect			DWORD ?
 hPlay			DWORD ?
@@ -177,7 +179,8 @@ WinProc PROC,
 	.ELSEIF eax == WM_CREATE		; create window?
 		INVOKE CreateListWin, hWnd, hInstance	
 		INVOKE CreateTrackBar, hWnd, hInstance
-		INVOKE CreatePlayButton, hWnd, hInstance	
+		INVOKE CreatePlayButton, hWnd, hInstance
+;		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; not avaliable for now
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
 	  INVOKE PostQuitMessage,0

@@ -3,3 +3,9 @@ mp3_player_test/Debug/
 mp3_player_test/include/
 mp3_player_test/lib/
 mp3_player_test.opensdf
+mp3_player_test/resource/music/Crying In The Party.mp3
+mp3_player_test/resource/music/flower.mp3
+mp3_player_test/resource/music/hill.mp3
+mp3_player_test/resource/music/mountain.mp3
+mp3_player_test/list.txt
+mp3_player_test/list2.txt
