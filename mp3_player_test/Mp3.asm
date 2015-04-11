@@ -47,6 +47,7 @@ public hInstance
 public hPlayButton
 public hNextButton
 public hWinBar
+public hSoundBar
 public hRect
 public hPlay
 public hPause
@@ -64,6 +65,7 @@ hInstance		DWORD ?
 hPlayButton		DWORD ?
 hNextButton		DWORD ?
 hWinBar			DWORD ?
+hSoundBar       DWORD ?
 hRect			DWORD ?
 hPlay			DWORD ?
 hPause			DWORD ?
@@ -164,13 +166,19 @@ WinProc PROC,
 ;	.ENDIF
 	;pop ebx
 	.IF eax == WM_HSCROLL
-		.IF ebx == SB_ENDSCROLL
-			INVOKE BarAdjust
-			mov isDraging, 0
-		.ELSE
-			mov isDraging, 1
-		.ENDIF
+		push edx
+		mov edx, lParam
+		.IF (edx == hWinBar)
+			.IF ebx == SB_ENDSCROLL
+				INVOKE BarAdjust
+				mov isDraging, 0
+			.ELSE
+				mov isDraging, 1
+			.ENDIF
+		.ELSEIF (edx == hSoundBar)
 
+		.ENDIF
+		pop edx
 		jmp WinProcExit
 	.ELSEIF eax == WM_LBUTTONDOWN		; mouse button?
 	  jmp WinProcExit
@@ -179,6 +187,7 @@ WinProc PROC,
 	.ELSEIF eax == WM_CREATE		; create window?
 		INVOKE CreateListWin, hWnd, hInstance	
 		INVOKE CreateTrackBar, hWnd, hInstance
+		INVOKE CreateSoundBar, hWnd, hInstance
 		INVOKE CreatePlayButton, hWnd, hInstance
 ;		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; not avaliable for now
 	  jmp WinProcExit

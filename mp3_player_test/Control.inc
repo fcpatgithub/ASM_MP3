@@ -1,5 +1,6 @@
 CreatePlayButton		PROTO, hWnd: DWORD, hIns: DWORD
 CreateTrackBar			PROTO, hWnd: DWORD, hIns: DWORD
+CreateSoundBar			PROTO, hWnd: DWORD, hIns: DWORD
 CreatePlaybackButton	PROTO, hWnd: DWORD, hIns: DWORD, mode: BYTE
 SwitchTrackState		PROTO
 BarAdjust				PROTO

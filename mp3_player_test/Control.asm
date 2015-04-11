@@ -26,6 +26,7 @@ extern Pos				: DWORD
 extern hPlayButton		: DWORD
 extern hNextButton		: DWORD
 extern hWinBar			: DWORD
+extern hSoundBar		: DWORD
 extern hRect			: DWORD
 extern hPlay			: DWORD
 extern hPause			: DWORD
@@ -68,6 +69,19 @@ CreateTrackBar PROC,
 
 CreateTrackBar ENDP
 ;********************************************************************
+CreateSoundBar PROC,
+	hWnd: DWORD, hIns: DWORD
+
+	INVOKE CreateWindowEx, NULL, ADDR barclassName,
+		ADDR barName,WS_CHILD+WS_VISIBLE,370,70,50,20, hWnd,Bar_ID,hIns,NULL
+	mov hSoundBar, eax
+	INVOKE SendMessage, hSoundBar, TBM_SETPAGESIZE, 0, 1
+	
+	ret
+
+CreateSoundBar ENDP
+;********************************************************************
+
 SwitchTrackState PROC
 	INVOKE SendMessage, hPlayButton, BM_GETIMAGE, IMAGE_BITMAP, NULL
 	.IF dwFlag == 0 || dwFlag == 2
