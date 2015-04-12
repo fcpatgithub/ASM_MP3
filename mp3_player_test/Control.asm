@@ -24,7 +24,6 @@ includelib	winmm.lib
 .data
 extern dwFlag			: DWORD
 extern Pos				: DWORD
-extern vPos				: DWORD
 extern volumePos		: DWORD
 extern hPlayButton		: DWORD
 extern hNextButton		: DWORD
@@ -39,7 +38,7 @@ extern hNext			: DWORD
 extern hPrevious		: DWORD
 extern hMixer			: DWORD
 extern szBuffer			: BYTE
-extern mxcdVolume		: MIXERCONTROLDETAILS_SIGNED
+extern volume			: MIXERCONTROLDETAILS_SIGNED
 extern mxcd				: MIXERCONTROLDETAILS
 extern mixer_id			: DWORD
 
@@ -111,10 +110,13 @@ CreateVolumeBar PROC,
 	mov mxcd.cChannels, 1
 	mov mxcd.cMultipleItems, 0
 	mov mxcd.cbDetails, SIZEOF MIXERCONTROLDETAILS_SIGNED
-	lea eax, mxcdVolume
+	lea eax, volume
 	mov mxcd.paDetails, eax
 	INVOKE mixerGetControlDetails, hMixer, ADDR mxcd, \
 			MIXER_OBJECTF_HMIXER or MIXER_GETCONTROLDETAILSF_VALUE
+
+	INVOKE SendMessage, hVolumeBar, TBM_SETPOS, 1, 100
+	INVOKE VolumeAdjust, 100
 
 	ret
 
@@ -142,32 +144,10 @@ BarAdjust PROC
 BarAdjust ENDP
 ;********************************************************************
 VolumeBarAdjust PROC
-	LOCAL volume	: MIXERCONTROLDETAILS_UNSIGNED
 
 	INVOKE SendMessage, hVolumeBar, TBM_GETPOS, 0, 0
-;	mov vPos, eax
-	mov ecx, 65535
-	mul ecx
-	mov ecx, 100
-	div ecx
-	mov volume, eax
-	mov mxcd.cbStruct, SIZEOF MIXERCONTROLDETAILS
-	mov eax, mixer_id
-	mov mxcd.dwControlID, eax
-	mov mxcd.cChannels,  1
-	mov mxcd.cMultipleItems, 0
-	mov mxcd.cbDetails, SIZEOF MIXERCONTROLDETAILS_SIGNED
-	lea eax, volume
-	mov mxcd.paDetails, eax
-	INVOKE mixerSetControlDetails, hMixer, ADDR mxcd, \
-			MIXER_OBJECTF_HMIXER or MIXER_SETCONTROLDETAILSF_VALUE
-;	push eax
-;	INVOKE SendMessage, hVolumeBar, TBM_GETPOS, 0, 0
-;	.IF (volumePos != eax)
-;		mov volumePos, eax
-;		call _SeekMP3
-;	.ENDIF
-;	pop eax
+	mov	volumePos, eax
+	INVOKE VolumeAdjust, volumePos
 	ret
 VolumeBarAdjust ENDP
 ;********************************************************************

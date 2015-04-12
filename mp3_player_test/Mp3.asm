@@ -42,7 +42,6 @@ public hDevice
 public szBuffer
 public stOpenFileName
 public Pos
-public vPos
 public hWinMain
 public hInstance
 public hPlayButton
@@ -58,34 +57,33 @@ public hNext
 public hPrevious
 public hList
 public hMixer
-public mxcdVolume
+public volume
 public mxcd
 public mixer_id
 
-dwFlag			DWORD	?
-hDevice			DWORD	?
-szBuffer		BYTE	256 dup	(?)
-stOpenFileName	OPENFILENAME	<?>
-Pos				DWORD ?
-vPos			DWORD ?
-volumePos		DWORD ?
-hWinMain		DWORD ?
-hInstance		DWORD ?
-hPlayButton		DWORD ?
-hNextButton		DWORD ?
-hPreviousButton DWORD ?
-hWinBar			DWORD ?
-hVolumeBar      DWORD ?
-hRect			DWORD ?
-hPlay			DWORD ?
-hPause			DWORD ?
-hNext			DWORD ?
-hPrevious		DWORD ?
-hList			dd  ?
-hMixer			DWORD ?
-mxcdVolume		MIXERCONTROLDETAILS_SIGNED <?>
-mxcd			MIXERCONTROLDETAILS <?>
-mixer_id		DWORD ?
+dwFlag				DWORD	?
+hDevice				DWORD	?
+szBuffer			BYTE	256 dup	(?)
+stOpenFileName		OPENFILENAME	<?>
+Pos					DWORD ?
+volumePos			DWORD ?
+hWinMain			DWORD ?
+hInstance			DWORD ?
+hPlayButton			DWORD ?
+hNextButton			DWORD ?
+hPreviousButton		DWORD ?
+hWinBar				DWORD ?
+hVolumeBar			DWORD ?
+hRect				DWORD ?
+hPlay				DWORD ?
+hPause				DWORD ?
+hNext				DWORD ?
+hPrevious			DWORD ?
+hList				dd  ?
+hMixer				DWORD ?
+volume				MIXERCONTROLDETAILS_SIGNED <?>
+mxcd				MIXERCONTROLDETAILS <?>
+mixer_id			DWORD ?
 currentMusicItem	BYTE ?	
 
 .data

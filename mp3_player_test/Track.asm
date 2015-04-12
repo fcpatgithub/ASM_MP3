@@ -32,8 +32,12 @@ extern hPlayButton		: DWORD
 extern hPlay			: DWORD
 extern hPause			: DWORD
 extern Pos				: DWORD
+extern volume			: DWORD
+extern volumePos		: DWORD
 extern isDraging		: BYTE
 extern workPath			: DWORD
+extern mxcd				: MIXERCONTROLDETAILS
+extern hMixer			: DWORD
 
 szCaption	BYTE	"Error...",0
 szError		BYTE	"Error to play MP3 file!",0
@@ -239,5 +243,17 @@ _AutochangePosition		proc
 	;.ENDW
 	ret
 _AutochangePosition			endp
+;********************************************************************
+VolumeAdjust PROC vPos: DWORD
+	mov eax, vPos
+	mov ecx, 65535
+	mul ecx
+	mov ecx, 100
+	div ecx
+	mov volume, eax
+	INVOKE mixerSetControlDetails, hMixer, ADDR mxcd, \
+			MIXER_OBJECTF_HMIXER or MIXER_SETCONTROLDETAILSF_VALUE
+	ret
+VolumeAdjust ENDP
 ;********************************************************************
 END
