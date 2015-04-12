@@ -195,19 +195,11 @@ WinProc PROC,
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
 		jmp WinProcExit
 	.ELSEIF eax == WM_CREATE		; create window?
-<<<<<<< HEAD
 		INVOKE CreateListWin, hWnd, hInstance					; Playlist
 		INVOKE CreateTrackBar, hWnd, hInstance					; Time bar
 		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; Next track
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 0			; Previous track
-=======
-		INVOKE CreateListWin, hWnd, hInstance	
-		INVOKE CreateTrackBar, hWnd, hInstance
-		INVOKE CreateVolumeBar, hWnd, hInstance
-		INVOKE CreatePlayButton, hWnd, hInstance
-;		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; not avaliable for now
->>>>>>> origin/dev
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
 	  INVOKE PostQuitMessage,0

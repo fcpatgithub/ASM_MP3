@@ -105,8 +105,6 @@ BarAdjust PROC
 	ret
 BarAdjust ENDP
 ;********************************************************************
-<<<<<<< HEAD
-=======
 volumeBarAdjust PROC
 	push eax
 	INVOKE SendMessage, hVolumeBar, TBM_GETPOS, 0, 0
@@ -118,9 +116,6 @@ volumeBarAdjust PROC
 	ret
 volumeBarAdjust ENDP
 ;********************************************************************
-; not avaliable for now
-; logical coordinate <--> screen coordinate?
->>>>>>> origin/dev
 CreatePlaybackButton PROC,
 	hWnd: DWORD, hIns: DWORD, mode: BYTE
 	LOCAL btnX:				DWORD

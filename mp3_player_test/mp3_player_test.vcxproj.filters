@@ -29,6 +29,9 @@
     <None Include="Track.inc">
       <Filter>標頭檔</Filter>
     </None>
+    <None Include="Image.inc">
+      <Filter>標頭檔</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Mp3.asm">
@@ -41,6 +44,9 @@
       <Filter>原始程式檔</Filter>
     </MASM>
     <MASM Include="Track.asm">
+      <Filter>原始程式檔</Filter>
+    </MASM>
+    <MASM Include="Image.asm">
       <Filter>原始程式檔</Filter>
     </MASM>
   </ItemGroup>

@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Control.asm" />
+    <MASM Include="Image.asm" />
     <MASM Include="Mp3.asm" />
     <MASM Include="MusicList.asm" />
     <MASM Include="Track.asm" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Control.inc" />
+    <None Include="Image.inc" />
     <None Include="MusicList.inc" />
     <None Include="Track.inc" />
   </ItemGroup>
