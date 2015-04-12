@@ -40,7 +40,7 @@ extern szBuffer		: BYTE
 
 .code
 
-WriteListFile proc
+WriteListFile proc uses esi ecx eax
 	LOCAL fname :DWORD
 	LOCAL hFile :DWORD
 
@@ -51,7 +51,7 @@ WriteListFile proc
     mov		hFile, fcreate(fname)
 
 	mov		esi, OFFSET musicList
-	add		esi, PATH_LEN
+	;add		esi, PATH_LEN
 	mov		ecx, musicListLen
 	.IF		ecx == 0 
 	  jmp	E
@@ -93,7 +93,7 @@ L1:
 		jmp L1
 	.ENDIF
 	
-	invoke WriteListFile
+	;invoke WriteListFile
 	ret
 GetList ENDP
 
@@ -332,4 +332,28 @@ CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
 
 	ret
 CreateListWin ENDP
+
+InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
+	
+	;insert the list
+	mov eax, musicListLen
+	mov ebx, INFO_LEN
+	mul ebx
+	add eax, OFFSET musicList
+	mov esi,eax
+	INVOKE szCopy, musicPath, eax 
+	inc	musicListLen
+	invoke	GetMusicNameFromPath, esi
+
+	invoke WriteListFile
+
+	mov eax, musicListLen
+	dec eax
+	invoke	ShowMusicItem, eax
+
+
+	;renew list file
+	
+	ret
+InsertItem ENDP
 END

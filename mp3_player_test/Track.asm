@@ -13,6 +13,7 @@ include     msgstruct.inc
 include		masm32rt.inc
 include		Track.inc
 include		Image.inc
+include		MusicList.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
@@ -32,6 +33,7 @@ extern hPlay			: DWORD
 extern hPause			: DWORD
 extern Pos				: DWORD
 extern isDraging		: BYTE
+extern workPath			: DWORD
 
 szCaption	BYTE	"Error...",0
 szError		BYTE	"Error to play MP3 file!",0
@@ -59,14 +61,17 @@ _GetFileName	proc
 		mov	stOpenFileName.lpstrTitle,offset szTitleSave
 		mov	stOpenFileName.lpstrDefExt,offset szExt
 		invoke	GetOpenFileName,offset stOpenFileName
+		Invoke	SetCurrentDirectory, ADDR workPath
 		.if	eax == FALSE
 			ret
 		.endif
+
 		INVOKE SendMessage, hPlayButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
 		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, 0
-		invoke	SetDlgItemText,hWinMain,ID_FILE,addr szBuffer
-		call	_StopPlayMP3
 
+		;invoke	SetDlgItemText,hWinMain,ID_FILE,addr szBuffer
+		call	_StopPlayMP3
+		invoke InsertItem, addr szBuffer
 		ret
 
 _GetFileName	endp

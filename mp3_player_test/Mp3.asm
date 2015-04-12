@@ -57,6 +57,7 @@ public hNext
 public hPrevious
 public hList
 
+
 dwFlag			DWORD	?
 hDevice			DWORD	?
 szBuffer		BYTE	256 dup	(?)
@@ -76,7 +77,7 @@ hPause			DWORD ?
 hNext			DWORD ?
 hPrevious		DWORD ?
 hList			dd  ?
-
+currentMusicItem	BYTE ?	
 
 .data
 
@@ -85,6 +86,7 @@ DebugText	BYTE "Debug", 0
 ErrorTitle  BYTE "Error",0
 WindowName  BYTE "ASM Windows App",0
 className   BYTE "ASMWin",0
+workPath	BYTE 1000 dup (?)
 
 ; Define the Application's Window class structure.
 MainWin WNDCLASS <NULL,WinProc,NULL,NULL,NULL,NULL,NULL, \
@@ -95,6 +97,7 @@ winRect   RECT <>
 
 MyMenu BYTE "FirstMenu", 0
 
+public workPath
 public template
 public musicList
 public musicListLen
@@ -120,6 +123,7 @@ _ProcDlgMain	PROTO	:DWORD,:DWORD,:DWORD,:DWORD
 ;********************************************************************
 
 ;********************************************************************
+comment*
 _ProcDlgMain	proc	uses ebx edi esi, \
 		hWnd:DWORD,wMsg:DWORD,wParam:DWORD,lParam:DWORD
 
@@ -133,7 +137,7 @@ _ProcDlgMain	proc	uses ebx edi esi, \
 		.elseif	eax == WM_COMMAND
 			mov	eax,wParam
 			.if	eax == ID_BROWSE
-				call	_GetFileName
+				;call	_GetFileName
 			.elseif eax == IDOK
 				.if	dwFlag == 0
 					INVOKE	PlayMP3, OFFSET szBuffer
@@ -149,6 +153,7 @@ _ProcDlgMain	proc	uses ebx edi esi, \
 		ret
 		
 _ProcDlgMain	endp
+*
 ;********************************************************************
 ;-----------------------------------------------------
 WinProc PROC,
@@ -239,6 +244,7 @@ messageID  DWORD ?
 ErrorHandler ENDP
 ;********************************************************************
 start:
+	Invoke GetCurrentDirectory, 1000, ADDR workPath
 	mov	hInstance,0
 		invoke	InitCommonControls
 		mov eax, eax
