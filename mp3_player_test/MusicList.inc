@@ -6,6 +6,7 @@ FillFileInfo			PROTO
 WriteListFile			PROTO
 GetList					PROTO
 CreateListWin			PROTO, hWnd: DWORD, hInstance: DWORD
+InsertItem				PROTO, musicPath : ptr BYTE
 
 PATH_LEN		equ 256
 NAME_LEN		equ 64

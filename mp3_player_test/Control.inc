@@ -2,9 +2,10 @@ CreatePlayButton		PROTO, hWnd: DWORD, hIns: DWORD
 CreateTrackBar			PROTO, hWnd: DWORD, hIns: DWORD
 CreateVolumeBar			PROTO, hWnd: DWORD, hIns: DWORD
 CreatePlaybackButton	PROTO, hWnd: DWORD, hIns: DWORD, mode: BYTE
+PlaybackButtonClicked	PROTO, mode: BYTE
 SwitchTrackState		PROTO
 BarAdjust				PROTO
-volumeBarAdjust				PROTO
+VolumeBarAdjust			PROTO
 
 playBtn_ID		EQU 400
 nextBtn_ID		EQU	401

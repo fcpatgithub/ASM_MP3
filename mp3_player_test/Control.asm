@@ -24,18 +24,24 @@ includelib	winmm.lib
 .data
 extern dwFlag			: DWORD
 extern Pos				: DWORD
+extern vPos				: DWORD
 extern volumePos		: DWORD
 extern hPlayButton		: DWORD
 extern hNextButton		: DWORD
 extern hPreviousButton  : DWORD
 extern hWinBar			: DWORD
+extern hWinMain			: DWORD
 extern hVolumeBar		: DWORD
 extern hRect			: DWORD
 extern hPlay			: DWORD
 extern hPause			: DWORD
 extern hNext			: DWORD
 extern hPrevious		: DWORD
+extern hMixer			: DWORD
 extern szBuffer			: BYTE
+extern mxcdVolume		: MIXERCONTROLDETAILS_SIGNED
+extern mxcd				: MIXERCONTROLDETAILS
+extern mixer_id			: DWORD
 
 ButtonClassName BYTE "button", 0
 ButtonText		BYTE " ", 0
@@ -73,19 +79,49 @@ CreateTrackBar ENDP
 ;********************************************************************
 CreateVolumeBar PROC,
 	hWnd: DWORD, hIns: DWORD
+	LOCAL mxl:			MIXERLINE
+	LOCAL mxc:			MIXERCONTROL
+	LOCAL mxlc:			MIXERLINECONTROLS
 
 	INVOKE CreateWindowEx, NULL, ADDR barclassName,
-		ADDR barName,WS_CHILD+WS_VISIBLE,370,70,50,20, hWnd,Bar_ID,hIns,NULL
+		ADDR barName,WS_CHILD+WS_VISIBLE,370,70,200,20, hWnd,Bar_ID,hIns,NULL
 	mov hVolumeBar, eax
 	INVOKE SendMessage, hVolumeBar, TBM_SETPAGESIZE, 0, 2
 	
+	INVOKE mixerOpen, ADDR hMixer, 0, hWinMain, NULL, MIXER_OBJECTF_MIXER or CALLBACK_WINDOW
+	mov mxl.cbStruct, SIZEOF MIXERLINE
+	mov mxl.dwComponentType, MIXERLINE_COMPONENTTYPE_DST_SPEAKERS
+	INVOKE mixerGetLineInfo, hMixer, ADDR mxl, \
+			MIXER_OBJECTF_HMIXER or MIXER_GETLINEINFOF_COMPONENTTYPE
+	mov mxlc.cbStruct, SIZEOF MIXERLINECONTROLS
+	mov eax, mxl.dwLineID
+	mov mxlc.dwLineID, eax
+	mov mxlc.dwControlType, MIXERCONTROL_CONTROLTYPE_VOLUME
+	mov mxlc.cControls, 1
+	mov mxlc.cbmxctrl, SIZEOF MIXERCONTROL
+	lea eax, mxc
+	mov mxlc.pamxctrl, eax
+	INVOKE mixerGetLineControls, hMixer, ADDR mxlc, \
+			MIXER_OBJECTF_HMIXER or MIXER_GETLINECONTROLSF_ONEBYTYPE
+	mov eax, mxc.dwControlID
+	mov mixer_id, eax
+	mov mxcd.cbStruct, SIZEOF MIXERCONTROLDETAILS
+	mov eax, mxc.dwControlID
+	mov mxcd.dwControlID, eax
+	mov mxcd.cChannels, 1
+	mov mxcd.cMultipleItems, 0
+	mov mxcd.cbDetails, SIZEOF MIXERCONTROLDETAILS_SIGNED
+	lea eax, mxcdVolume
+	mov mxcd.paDetails, eax
+	INVOKE mixerGetControlDetails, hMixer, ADDR mxcd, \
+			MIXER_OBJECTF_HMIXER or MIXER_GETCONTROLDETAILSF_VALUE
+
 	ret
 
 CreateVolumeBar ENDP
 ;********************************************************************
-
 SwitchTrackState PROC
-	INVOKE SendMessage, hPlayButton, BM_GETIMAGE, IMAGE_BITMAP, NULL
+
 	.IF dwFlag == 0 || dwFlag == 2
 		INVOKE PlayMP3, OFFSET szBuffer
 	.ELSE
@@ -105,16 +141,35 @@ BarAdjust PROC
 	ret
 BarAdjust ENDP
 ;********************************************************************
-volumeBarAdjust PROC
-	push eax
+VolumeBarAdjust PROC
+	LOCAL volume	: MIXERCONTROLDETAILS_UNSIGNED
+
 	INVOKE SendMessage, hVolumeBar, TBM_GETPOS, 0, 0
-	.IF (volumePos != eax)
-		mov volumePos, eax
-		;call _SeekMP3
-	.ENDIF
-	pop eax
+;	mov vPos, eax
+	mov ecx, 65535
+	mul ecx
+	mov ecx, 100
+	div ecx
+	mov volume, eax
+	mov mxcd.cbStruct, SIZEOF MIXERCONTROLDETAILS
+	mov eax, mixer_id
+	mov mxcd.dwControlID, eax
+	mov mxcd.cChannels,  1
+	mov mxcd.cMultipleItems, 0
+	mov mxcd.cbDetails, SIZEOF MIXERCONTROLDETAILS_SIGNED
+	lea eax, volume
+	mov mxcd.paDetails, eax
+	INVOKE mixerSetControlDetails, hMixer, ADDR mxcd, \
+			MIXER_OBJECTF_HMIXER or MIXER_SETCONTROLDETAILSF_VALUE
+;	push eax
+;	INVOKE SendMessage, hVolumeBar, TBM_GETPOS, 0, 0
+;	.IF (volumePos != eax)
+;		mov volumePos, eax
+;		call _SeekMP3
+;	.ENDIF
+;	pop eax
 	ret
-volumeBarAdjust ENDP
+VolumeBarAdjust ENDP
 ;********************************************************************
 CreatePlaybackButton PROC,
 	hWnd: DWORD, hIns: DWORD, mode: BYTE
@@ -161,6 +216,13 @@ CreatePlaybackButton PROC,
 	ret
 CreatePlaybackButton ENDP
 ;********************************************************************
+PlaybackButtonClicked PROC,
+	mode: BYTE
+	; mode = 0 -> previous track
+	; mode = 1 -> next track
+	
 
-
+	ret
+PlaybackButtonClicked ENDP
+;********************************************************************
 END

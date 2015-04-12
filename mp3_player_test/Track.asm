@@ -13,6 +13,7 @@ include     msgstruct.inc
 include		masm32rt.inc
 include		Track.inc
 include		Image.inc
+include		MusicList.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
@@ -32,6 +33,7 @@ extern hPlay			: DWORD
 extern hPause			: DWORD
 extern Pos				: DWORD
 extern isDraging		: BYTE
+extern workPath			: DWORD
 
 szCaption	BYTE	"Error...",0
 szError		BYTE	"Error to play MP3 file!",0
@@ -59,14 +61,15 @@ _GetFileName	proc
 		mov	stOpenFileName.lpstrTitle,offset szTitleSave
 		mov	stOpenFileName.lpstrDefExt,offset szExt
 		invoke	GetOpenFileName,offset stOpenFileName
+		Invoke	SetCurrentDirectory, ADDR workPath
 		.if	eax == FALSE
 			ret
 		.endif
-		INVOKE SendMessage, hPlayButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
+		INVOKE SetImage, hPlayButton, hPlay
 		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, 0
-		invoke	SetDlgItemText,hWinMain,ID_FILE,addr szBuffer
+		;invoke	SetDlgItemText,hWinMain,ID_FILE,addr szBuffer
 		call	_StopPlayMP3
-
+		invoke InsertItem, addr szBuffer
 		ret
 
 _GetFileName	endp
@@ -97,7 +100,7 @@ _GetFileName	endp
 ;			invoke	MessageBox,hWinMain,addr szError,addr szCaption,MB_OK
 ;		.endif
 ;		ret
-;       
+;      
 ;_PlayMP3	endp
 
 ;********************************************************************
@@ -106,7 +109,6 @@ PlayMP3	proc musicPath : ptr BYTE
 		local	@stMCIPlay:MCI_GENERIC_PARMS
 		local	@stMCIOpen:MCI_OPEN_PARMS
 
-		INVOKE SetImage, hPlayButton, hPause
 		mov ebx, dwFlag
 		.if ebx == 0
 			mov	@stMCIOpen.lpstrDeviceType, offset szDevice
@@ -124,10 +126,12 @@ PlayMP3	proc musicPath : ptr BYTE
 		.endif
 			
 		.if	eax == 0
+			INVOKE SetImage, hPlayButton, hPause
 			invoke	SetDlgItemText,hWinMain,IDOK,offset szStop
 			mov	dwFlag, 1
 		.else
 			invoke	MessageBox,hWinMain,addr szError,addr szCaption,MB_OK
+			INVOKE GetLastError
 		.endif
 		ret
         

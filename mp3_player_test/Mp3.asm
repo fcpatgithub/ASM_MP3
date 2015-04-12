@@ -42,6 +42,7 @@ public hDevice
 public szBuffer
 public stOpenFileName
 public Pos
+public vPos
 public hWinMain
 public hInstance
 public hPlayButton
@@ -56,27 +57,36 @@ public hPause
 public hNext
 public hPrevious
 public hList
+public hMixer
+public mxcdVolume
+public mxcd
+public mixer_id
 
-dwFlag			DWORD	?
-hDevice			DWORD	?
-szBuffer		BYTE	256 dup	(?)
+dwFlag			DWORD ?
+hDevice			DWORD ?
+szBuffer		BYTE 256 dup	(?)
 stOpenFileName	OPENFILENAME	<?>
-Pos				DWORD	?
-volumePos		DWORD   ?
+Pos				DWORD ?
+vPos			DWORD ?
+volumePos		DWORD ?
 hWinMain		DWORD ?
 hInstance		DWORD ?
 hPlayButton		DWORD ?
 hNextButton		DWORD ?
 hPreviousButton DWORD ?
 hWinBar			DWORD ?
-hVolumeBar       DWORD ?
+hVolumeBar      DWORD ?
 hRect			DWORD ?
 hPlay			DWORD ?
 hPause			DWORD ?
 hNext			DWORD ?
 hPrevious		DWORD ?
 hList			dd  ?
-
+hMixer			DWORD ?
+mxcdVolume		MIXERCONTROLDETAILS_SIGNED <?>
+mxcd			MIXERCONTROLDETAILS <?>
+mixer_id		DWORD ?
+currentMusicItem	BYTE ?	
 
 .data
 
@@ -85,6 +95,7 @@ DebugText	BYTE "Debug", 0
 ErrorTitle  BYTE "Error",0
 WindowName  BYTE "ASM Windows App",0
 className   BYTE "ASMWin",0
+workPath	BYTE 1000 dup (?)
 
 ; Define the Application's Window class structure.
 MainWin WNDCLASS <NULL,WinProc,NULL,NULL,NULL,NULL,NULL, \
@@ -95,6 +106,7 @@ winRect   RECT <>
 
 MyMenu BYTE "FirstMenu", 0
 
+public workPath
 public template
 public musicList
 public musicListLen
@@ -120,6 +132,7 @@ _ProcDlgMain	PROTO	:DWORD,:DWORD,:DWORD,:DWORD
 ;********************************************************************
 
 ;********************************************************************
+comment*
 _ProcDlgMain	proc	uses ebx edi esi, \
 		hWnd:DWORD,wMsg:DWORD,wParam:DWORD,lParam:DWORD
 
@@ -133,7 +146,7 @@ _ProcDlgMain	proc	uses ebx edi esi, \
 		.elseif	eax == WM_COMMAND
 			mov	eax,wParam
 			.if	eax == ID_BROWSE
-				call	_GetFileName
+				;call	_GetFileName
 			.elseif eax == IDOK
 				.if	dwFlag == 0
 					INVOKE	PlayMP3, OFFSET szBuffer
@@ -149,6 +162,7 @@ _ProcDlgMain	proc	uses ebx edi esi, \
 		ret
 		
 _ProcDlgMain	endp
+*
 ;********************************************************************
 ;-----------------------------------------------------
 WinProc PROC,
@@ -169,8 +183,10 @@ WinProc PROC,
 		.ELSEIF bx == playBtn_ID
 			INVOKE SwitchTrackState
 		.ELSEIF bx == nextBtn_ID
+			INVOKE PlaybackButtonClicked, 1
 ;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
 		.ELSEIF bx == previousBtn_ID
+			INVOKE PlaybackButtonClicked, 0
 ;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
 		.ENDIF
 ;	.ENDIF
@@ -186,7 +202,9 @@ WinProc PROC,
 				mov isDraging, 1
 			.ENDIF
 		.ELSEIF (edx == hVolumeBar)
-
+;			.IF ebx == SB_ENDSCROLL
+				INVOKE VolumeBarAdjust
+;			.ENDIF
 		.ENDIF
 		pop edx
 		jmp WinProcExit
@@ -197,6 +215,7 @@ WinProc PROC,
 	.ELSEIF eax == WM_CREATE		; create window?
 		INVOKE CreateListWin, hWnd, hInstance					; Playlist
 		INVOKE CreateTrackBar, hWnd, hInstance					; Time bar
+		INVOKE CreateVolumeBar, hWnd, hInstance					; Volume bar
 		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; Next track
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 0			; Previous track
@@ -239,6 +258,7 @@ messageID  DWORD ?
 ErrorHandler ENDP
 ;********************************************************************
 start:
+	Invoke GetCurrentDirectory, 1000, ADDR workPath
 	mov	hInstance,0
 		invoke	InitCommonControls
 		mov eax, eax
