@@ -67,6 +67,7 @@ _GetFileName	proc
 		.endif
 		INVOKE SetImage, hPlayButton, hPlay
 		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, 0
+
 		;invoke	SetDlgItemText,hWinMain,ID_FILE,addr szBuffer
 		call	_StopPlayMP3
 		invoke InsertItem, addr szBuffer

@@ -62,9 +62,9 @@ public mxcdVolume
 public mxcd
 public mixer_id
 
-dwFlag			DWORD ?
-hDevice			DWORD ?
-szBuffer		BYTE 256 dup	(?)
+dwFlag			DWORD	?
+hDevice			DWORD	?
+szBuffer		BYTE	256 dup	(?)
 stOpenFileName	OPENFILENAME	<?>
 Pos				DWORD ?
 vPos			DWORD ?
