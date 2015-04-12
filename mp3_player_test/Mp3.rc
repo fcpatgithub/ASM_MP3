@@ -1,5 +1,6 @@
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #include	<resource.h>
+#include	<windef.h>
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #define		DLG_MAIN	1000
 #define		ID_BROWSE	1001
@@ -9,8 +10,13 @@
 
 #define IDB_PLAY 250
 #define IDB_PAUSE 251
+#define IDB_NEXT 252
+#define IDB_PREVIOUS 253
 IDB_PLAY BITMAP "resource/image/play.bmp"
 IDB_PAUSE BITMAP "resource/image/pause.bmp"
+IDB_NEXT BITMAP "resource/image/next.bmp"
+IDB_PREVIOUS BITMAP "resource/image/previous.bmp"
+
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 1		ICON		"Main.ico"
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

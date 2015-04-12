@@ -13,15 +13,13 @@ include		winmm.inc
 include     msgstruct.inc
 include		masm32rt.inc
 include		MusicList.inc
+include		Track.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
 includelib	comctl32.lib
 includelib	comdlg32.lib
 includelib	winmm.lib
-
-PlayMP3	proto musicPath : DWORD
-
 
 .data
 
@@ -38,6 +36,7 @@ extrn hList			: DWORD
 extrn template		: WORD
 extrn musicList		: musicInfo
 extrn musicListLen	: DWORD
+extern szBuffer		: BYTE
 
 .code
 
@@ -294,7 +293,9 @@ comment*
 		mov ebx, INFO_LEN
 		mul ebx
 		add eax, OFFSET musicList
-		invoke PlayMP3, eax
+		INVOKE szCopy, eax, OFFSET szBuffer
+		INVOKE _StopPlayMP3
+		INVOKE PlayMP3, OFFSET szBuffer
 
 	.ENDIF
 		

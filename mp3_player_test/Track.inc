@@ -1,5 +1,6 @@
 _GetFileName	PROTO
-_PlayMP3		PROTO
+;_PlayMP3		PROTO
+PlayMP3			PROTO, musicPath: PTR BYTE
 _PausePlayMP3	PROTO
 _StopPlayMP3	PROTO
 _SeekMP3		PROTO

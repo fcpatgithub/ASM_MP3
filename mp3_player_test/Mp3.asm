@@ -25,7 +25,7 @@ includelib  Gdi32.lib
 include		MusicList.inc
 include		Track.inc
 include		Control.inc
-
+include		Image.inc
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -46,6 +46,7 @@ public hWinMain
 public hInstance
 public hPlayButton
 public hNextButton
+public hPreviousButton
 public hWinBar
 public hRect
 public hPlay
@@ -63,6 +64,7 @@ hWinMain		DWORD ?
 hInstance		DWORD ?
 hPlayButton		DWORD ?
 hNextButton		DWORD ?
+hPreviousButton DWORD ?
 hWinBar			DWORD ?
 hRect			DWORD ?
 hPlay			DWORD ?
@@ -73,6 +75,8 @@ hList			dd  ?
 
 
 .data
+
+DebugText	BYTE "Debug", 0
 
 ErrorTitle  BYTE "Error",0
 WindowName  BYTE "ASM Windows App",0
@@ -128,7 +132,7 @@ _ProcDlgMain	proc	uses ebx edi esi, \
 				call	_GetFileName
 			.elseif eax == IDOK
 				.if	dwFlag == 0
-					call	_PlayMP3
+					INVOKE	PlayMP3, OFFSET szBuffer
 				.else
 					call	_StopPlayMP3
 				.endif
@@ -160,6 +164,10 @@ WinProc PROC,
 			call _GetFileName
 		.ELSEIF bx == playBtn_ID
 			INVOKE SwitchTrackState
+		.ELSEIF bx == nextBtn_ID
+;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
+		.ELSEIF bx == previousBtn_ID
+;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
 		.ENDIF
 ;	.ENDIF
 	;pop ebx
@@ -177,10 +185,11 @@ WinProc PROC,
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
 		jmp WinProcExit
 	.ELSEIF eax == WM_CREATE		; create window?
-		INVOKE CreateListWin, hWnd, hInstance	
-		INVOKE CreateTrackBar, hWnd, hInstance
-		INVOKE CreatePlayButton, hWnd, hInstance
-;		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; not avaliable for now
+		INVOKE CreateListWin, hWnd, hInstance					; Playlist
+		INVOKE CreateTrackBar, hWnd, hInstance					; Time bar
+		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button
+		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; Next track
+		INVOKE CreatePlaybackButton, hWnd, hInstance, 0			; Previous track
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
 	  INVOKE PostQuitMessage,0
@@ -227,8 +236,9 @@ start:
 		mov	hInstance,eax
 
 ; Load Bitmap
-		INVOKE LoadImage, hInstance, IDB_PAUSE, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
-		mov hPause, eax
+;		INVOKE LoadImage, hInstance, IDB_PAUSE, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+;		mov hPause, eax
+		INVOKE LoadImages, hInstance
 
 ; Load the program's icon and cursor.
 		INVOKE LoadIcon, NULL, IDI_APPLICATION

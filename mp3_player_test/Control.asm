@@ -13,6 +13,7 @@ include     msgstruct.inc
 include		masm32rt.inc
 include		Control.inc
 include		Track.inc
+include		Image.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
@@ -25,17 +26,20 @@ extern dwFlag			: DWORD
 extern Pos				: DWORD
 extern hPlayButton		: DWORD
 extern hNextButton		: DWORD
+extern hPreviousButton  : DWORD
 extern hWinBar			: DWORD
 extern hRect			: DWORD
 extern hPlay			: DWORD
 extern hPause			: DWORD
 extern hNext			: DWORD
 extern hPrevious		: DWORD
+extern szBuffer			: BYTE
 
 ButtonClassName BYTE "button", 0
-ButtonText BYTE " ", 0
-barName  BYTE "msctls_trackbar32",0
-barclassName   BYTE "msctls_trackbar32",0
+ButtonText		BYTE " ", 0
+barName			BYTE "msctls_trackbar32",0
+barclassName	BYTE "msctls_trackbar32",0
+
 .code
 
 ;********************************************************************
@@ -46,12 +50,9 @@ CreatePlayButton PROC,
 		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
 		10, 10, 50, 50, hWnd, playBtn_ID, hIns, NULL
 	mov hPlayButton, eax
-	INVOKE LoadImage, hIns, IDB_PLAY, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
-	mov hPlay, eax
-	INVOKE SendMessage, hPlayButton, BM_SETIMAGE, IMAGE_BITMAP, eax	
-	INVOKE CreateEllipticRgn, 0, 0, 50, 50							
-	mov hRect, eax
-	INVOKE SetWindowRgn, hPlayButton, hRect, TRUE
+	INVOKE SetImage, hPlayButton, hPlay	
+	INVOKE CreateEllipticRgn, 0, 0, 50, 50
+	INVOKE SetWindowRgn, hPlayButton, eax, TRUE
 	ret
 
 CreatePlayButton ENDP
@@ -71,10 +72,8 @@ CreateTrackBar ENDP
 SwitchTrackState PROC
 	INVOKE SendMessage, hPlayButton, BM_GETIMAGE, IMAGE_BITMAP, NULL
 	.IF dwFlag == 0 || dwFlag == 2
-		INVOKE SendMessage, hPlayButton, BM_SETIMAGE, IMAGE_BITMAP, hPause
-		call _PlayMP3
+		INVOKE PlayMP3, OFFSET szBuffer
 	.ELSE
-		INVOKE SendMessage, hPlayButton, BM_SETIMAGE, IMAGE_BITMAP, hPlay
 		call _PausePlayMP3
 	.ENDIF
 	ret
@@ -91,24 +90,51 @@ BarAdjust PROC
 	ret
 BarAdjust ENDP
 ;********************************************************************
-; not avaliable for now
-; logical coordinate <--> screen coordinate?
 CreatePlaybackButton PROC,
 	hWnd: DWORD, hIns: DWORD, mode: BYTE
+	LOCAL btnX:				DWORD
+	LOCAL btnID:			DWORD
+	LOCAL btnHandle:		DWORD
+	LOCAL imageHandle:		DWORD
 	; mode = 0 -> previous
 	; mode = 1 -> next
 
+	.IF mode == 1
+		mov btnX, 400
+		mov btnID, nextBtn_ID
+		push ebx
+		mov ebx, hNext
+		mov imageHandle, ebx
+		pop ebx
+	.ELSEIF mode == 0
+		mov btnX, 300
+		mov btnID, previousBtn_ID
+		push ebx
+		mov ebx, hPrevious
+		mov imageHandle, ebx
+		pop ebx
+	.ENDIF
 	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
 		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
-		400, 10, 50, 50, hWnd, nextBtn_ID, hIns, NULL
-	mov hNextButton, eax
-;	INVOKE LoadImage, hIns, IDB_PLAY, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
-;	mov hPlay, eax
-	INVOKE SendMessage, hNextButton, BM_SETIMAGE, IMAGE_BITMAP, hPause
-	INVOKE CreateEllipticRgn, 350, 10, 400, 30
-;	mov hRect, eax		
-;	INVOKE SetWindowRgn, hNextButton, hRect, TRUE
+		btnX, 10, 50, 50, hWnd, btnID, hIns, NULL
+	mov btnHandle, eax
+	INVOKE SetImage, btnHandle, imageHandle
+	INVOKE CreateEllipticRgn, 0, 0, 50, 50
+	INVOKE SetWindowRgn, btnHandle, eax, TRUE
+	.IF mode == 1
+		push ebx
+		mov ebx, btnHandle
+		mov hNextButton, ebx
+		pop ebx
+	.ELSEIF mode == 0
+		push ebx
+		mov ebx, btnHandle
+		mov hPreviousButton, ebx
+		pop ebx
+	.ENDIF
 	ret
 CreatePlaybackButton ENDP
 ;********************************************************************
+
+
 END

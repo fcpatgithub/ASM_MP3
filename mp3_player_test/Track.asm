@@ -12,6 +12,7 @@ include		winmm.inc
 include     msgstruct.inc
 include		masm32rt.inc
 include		Track.inc
+include		Image.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
@@ -28,6 +29,7 @@ extern hWinMain			: DWORD
 extern hWinBar			: DWORD
 extern hPlayButton		: DWORD
 extern hPlay			: DWORD
+extern hPause			: DWORD
 extern Pos				: DWORD
 extern isDraging		: BYTE
 
@@ -69,42 +71,42 @@ _GetFileName	proc
 
 _GetFileName	endp
 ;********************************************************************
-_PlayMP3	proc 
-		
-		local	@stMCIPlay:MCI_GENERIC_PARMS
-		local	@stMCIOpen:MCI_OPEN_PARMS
-		mov ebx, dwFlag
-		.if ebx == 0
-			mov	@stMCIOpen.lpstrDeviceType,offset szDevice
-			mov	@stMCIOpen.lpstrElementName,offset szBuffer
-			invoke	mciSendCommand,0,MCI_OPEN,MCI_OPEN_TYPE or MCI_OPEN_ELEMENT,addr @stMCIOpen
-			mov	eax,@stMCIOpen.wDeviceID
-			mov	hDevice,eax
-			mov	eax,hWinMain
-			mov	@stMCIPlay.dwCallback,eax
-			invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
-		.else
+;_PlayMP3	proc 
+;		
+;		local	@stMCIPlay:MCI_GENERIC_PARMS
+;		local	@stMCIOpen:MCI_OPEN_PARMS
+;		mov ebx, dwFlag
+;		.if ebx == 0
+;			mov	@stMCIOpen.lpstrDeviceType,offset szDevice
+;			mov	@stMCIOpen.lpstrElementName,offset szBuffer
+;			invoke	mciSendCommand,0,MCI_OPEN,MCI_OPEN_TYPE or MCI_OPEN_ELEMENT,addr @stMCIOpen
+;			mov	eax,@stMCIOpen.wDeviceID
+;			mov	hDevice,eax
+;			mov	eax,hWinMain
+;			mov	@stMCIPlay.dwCallback,eax
+;			invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
+;		.else
+;
+;			invoke	mciSendCommand,hDevice,MCI_RESUME,MCI_NOTIFY,addr @stMCIPlay
+;		.endif
+;			
+;		.if	eax == 0
+;			invoke	SetDlgItemText,hWinMain,IDOK,offset szStop
+;			mov	dwFlag, 1
+;		.else
+;			invoke	MessageBox,hWinMain,addr szError,addr szCaption,MB_OK
+;		.endif
+;		ret
+;       
+;_PlayMP3	endp
 
-			invoke	mciSendCommand,hDevice,MCI_RESUME,MCI_NOTIFY,addr @stMCIPlay
-		.endif
-			
-		.if	eax == 0
-			invoke	SetDlgItemText,hWinMain,IDOK,offset szStop
-			mov	dwFlag, 1
-		.else
-			invoke	MessageBox,hWinMain,addr szError,addr szCaption,MB_OK
-		.endif
-		ret
-        
-_PlayMP3	endp
-
+;********************************************************************
 PlayMP3	proc musicPath : ptr BYTE
 		
 		local	@stMCIPlay:MCI_GENERIC_PARMS
 		local	@stMCIOpen:MCI_OPEN_PARMS
 
-		INVOKE _StopPlayMP3
-
+		INVOKE SetImage, hPlayButton, hPause
 		mov ebx, dwFlag
 		.if ebx == 0
 			mov	@stMCIOpen.lpstrDeviceType, offset szDevice
@@ -130,12 +132,11 @@ PlayMP3	proc musicPath : ptr BYTE
 		ret
         
 PlayMP3	endp
-
-
 ;********************************************************************
 _PausePlayMP3	proc
 		local	@stMCIStop:MCI_GENERIC_PARMS
 		
+		INVOKE SetImage, hPlayButton, hPlay
 		mov	eax,hWinMain
 		mov	@stMCIStop.dwCallback,eax
 		invoke	mciSendCommand,hDevice,MCI_PAUSE,MCI_NOTIFY,addr @stMCIStop
