@@ -48,6 +48,8 @@ public hPlayButton
 public hNextButton
 public hPreviousButton
 public hWinBar
+public hVolumeBar
+public volumePos
 public hRect
 public hPlay
 public hPause
@@ -60,12 +62,14 @@ hDevice			DWORD	?
 szBuffer		BYTE	256 dup	(?)
 stOpenFileName	OPENFILENAME	<?>
 Pos				DWORD	?
+volumePos		DWORD   ?
 hWinMain		DWORD ?
 hInstance		DWORD ?
 hPlayButton		DWORD ?
 hNextButton		DWORD ?
 hPreviousButton DWORD ?
 hWinBar			DWORD ?
+hVolumeBar       DWORD ?
 hRect			DWORD ?
 hPlay			DWORD ?
 hPause			DWORD ?
@@ -172,24 +176,38 @@ WinProc PROC,
 ;	.ENDIF
 	;pop ebx
 	.IF eax == WM_HSCROLL
-		.IF ebx == SB_ENDSCROLL
-			INVOKE BarAdjust
-			mov isDraging, 0
-		.ELSE
-			mov isDraging, 1
-		.ENDIF
+		push edx
+		mov edx, lParam
+		.IF (edx == hWinBar)
+			.IF ebx == SB_ENDSCROLL
+				INVOKE BarAdjust
+				mov isDraging, 0
+			.ELSE
+				mov isDraging, 1
+			.ENDIF
+		.ELSEIF (edx == hVolumeBar)
 
+		.ENDIF
+		pop edx
 		jmp WinProcExit
 	.ELSEIF eax == WM_LBUTTONDOWN		; mouse button?
 	  jmp WinProcExit
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
 		jmp WinProcExit
 	.ELSEIF eax == WM_CREATE		; create window?
+<<<<<<< HEAD
 		INVOKE CreateListWin, hWnd, hInstance					; Playlist
 		INVOKE CreateTrackBar, hWnd, hInstance					; Time bar
 		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; Next track
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 0			; Previous track
+=======
+		INVOKE CreateListWin, hWnd, hInstance	
+		INVOKE CreateTrackBar, hWnd, hInstance
+		INVOKE CreateVolumeBar, hWnd, hInstance
+		INVOKE CreatePlayButton, hWnd, hInstance
+;		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; not avaliable for now
+>>>>>>> origin/dev
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
 	  INVOKE PostQuitMessage,0
