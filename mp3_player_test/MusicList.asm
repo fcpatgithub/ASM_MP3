@@ -161,6 +161,7 @@ ShowFileInfo proc uses edi row:DWORD, lpFind:DWORD
 	mov edi,lpFind
 	assume edi:ptr WIN32_FIND_DATA
 	mov lvi.imask,LVIF_TEXT+LVIF_PARAM
+	mov lvi.state,0
 	push row
 	pop lvi.iItem	
 	mov lvi.iSubItem,0
@@ -258,17 +259,23 @@ ListProc proc   hCtl	: DWORD,
 	LOCAL lvi:LV_ITEM
 
 
-    .if uMsg == WM_LBUTTONDBLCLK
+    .IF uMsg == WM_LBUTTONDBLCLK
       jmp DoIt
-    .elseif uMsg == WM_CHAR
-      .if wParam == 13
+	;.ELSEIF eax == WM_CREATE
+	;	;Invoke SendMessage, nCtl, LVM_SETITEMSTATE,0, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED
+		
+	;	jmp EndDo
+    .ELSEIF uMsg == WM_CHAR
+      .IF wParam == 13
         jmp DoIt
-      .endif
-    .endif
+      .ENDIF
+    .ENDIF
     jmp EndDo
 
  DoIt:
+		
         invoke SendMessage,hCtl,LVM_GETNEXTITEM,-1,LVNI_SELECTED
+		
         mov IndexItem, eax
 
 	   szText CurSel1,"-"
@@ -313,7 +320,9 @@ ListProc endp
 
 
 CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
-	invoke CreateWindowEx, NULL, addr ListViewClassName, NULL, LVS_LIST+WS_CHILD+WS_VISIBLE, 100,100,500,500,hWnd, NULL, hInstance, NULL
+	LOCAL lvi:LV_ITEM
+
+	invoke CreateWindowEx, NULL, addr ListViewClassName, NULL, LVS_LIST+WS_CHILD+WS_VISIBLE+LVS_SHOWSELALWAYS, 100,100,500,500,hWnd, NULL, hInstance, NULL
 
 
 	mov hList, eax
@@ -328,13 +337,30 @@ CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
 	RGB 0,0,0
 	invoke SendMessage,hList,LVM_SETTEXTBKCOLOR,0,eax
 
-	
+	.IF musicListLen >0		
+		mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
+		mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
+		Invoke SendMessage, hList, LVM_SETITEMSTATE,0,ADDR lvi
+	.ENDIF
+
+
+
+
+comment*
+
+	invoke SendMessage,hList, LVM_GETITEMPOSITION, 0, ADDR p
+	mov eax, p.y
+	mov ebx, 65536
+	mul ebx
+	add ebx, p.x
+	invoke SendMessage,hList, WM_LBUTTONDBLCLK, MK_LBUTTON, ebx
+*
 
 	ret
 CreateListWin ENDP
 
 InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
-	
+	LOCAL lvi:LV_ITEM
 	;insert the list
 	mov eax, musicListLen
 	mov ebx, INFO_LEN
@@ -345,15 +371,27 @@ InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
 	inc	musicListLen
 	invoke	GetMusicNameFromPath, esi
 
-	invoke WriteListFile
+	
 
 	mov eax, musicListLen
 	dec eax
 	invoke	ShowMusicItem, eax
 
+	mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
+	mov lvi.state,  0
+	Invoke SendMessage, hList, LVM_SETITEMSTATE,-1,ADDR lvi
+
+	mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
+	mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
+	mov ebx, musicListLen
+	dec ebx
+	Invoke SendMessage, hList, LVM_SETITEMSTATE,ebx,ADDR lvi
+	mov ebx,eax
+
 
 	;renew list file
-	
+	invoke WriteListFile
+
 	ret
 InsertItem ENDP
 END
