@@ -33,6 +33,8 @@ extern hPlay			: DWORD
 extern hPause			: DWORD
 extern Pos				: DWORD
 extern volume			: DWORD
+extern totalTime		: DWORD
+extern currentTime		: DWORD
 extern volumePos		: DWORD
 extern isDraging		: BYTE
 extern workPath			: DWORD
@@ -65,7 +67,7 @@ _GetFileName	proc
 		mov	stOpenFileName.lpstrTitle,offset szTitleSave
 		mov	stOpenFileName.lpstrDefExt,offset szExt
 		invoke	GetOpenFileName,offset stOpenFileName
-		Invoke	SetCurrentDirectory, ADDR workPath
+		invoke	SetCurrentDirectory, ADDR workPath
 		.if	eax == FALSE
 			ret
 		.endif
@@ -78,7 +80,23 @@ _GetFileName	proc
 		ret
 
 _GetFileName	endp
+
 ;********************************************************************
+_getTotalTiem	proc 
+	local	@stMCIStatus:MCI_STATUS_PARMS
+	mov eax, MCI_STATUS_LENGTH
+	mov  @stMCIStatus.dwItem, eax
+	mov	eax,hWinMain
+	mov	@stMCIStatus.dwCallback,eax
+	invoke	mciSendCommand,hDevice,MCI_STATUS,MCI_STATUS_ITEM,addr @stMCIStatus
+	mov eax, @stMCIStatus.dwReturn
+	mov totalTime, eax
+	ret
+_getTotalTiem	endp
+
+;********************************************************************
+
+
 ;_PlayMP3	proc 
 ;		
 ;		local	@stMCIPlay:MCI_GENERIC_PARMS
@@ -124,6 +142,7 @@ PlayMP3	proc musicPath : ptr BYTE
 			mov	hDevice,eax
 			mov	eax,hWinMain
 			mov	@stMCIPlay.dwCallback,eax
+			invoke _getTotalTiem
 			invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
 		.else
 
@@ -222,6 +241,7 @@ _AutochangePosition		proc
 		mov ecx, @stMCIStatus.dwReturn
 		push ecx
 		mov eax, MCI_STATUS_POSITION
+		mov currentTime, eax
 		mov  @stMCIStatus.dwItem, eax
 		mov	eax,hWinMain
 		mov	@stMCIStatus.dwCallback,eax

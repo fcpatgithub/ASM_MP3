@@ -61,6 +61,8 @@ public volume
 public mxcd
 public mixer_id
 public currentMusicItem
+public totalTime
+public currentTime
 
 dwFlag				DWORD	?
 hDevice				DWORD	?
@@ -70,6 +72,8 @@ Pos					DWORD ?
 volumePos			DWORD ?
 hWinMain			DWORD ?
 hInstance			DWORD ?
+totalTime			DWORD 0
+currentTime			DWORD 0
 hPlayButton			DWORD ?
 hNextButton			DWORD ?
 hPreviousButton		DWORD ?
