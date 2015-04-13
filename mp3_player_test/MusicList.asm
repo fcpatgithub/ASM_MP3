@@ -37,7 +37,8 @@ extrn template		: WORD
 extrn musicList		: musicInfo
 extrn musicListLen	: DWORD
 extern szBuffer		: BYTE
-
+extern hWinBar		: DWORD
+extrn currentMusicItem : BYTE
 .code
 
 WriteListFile proc uses esi ecx eax
@@ -341,6 +342,9 @@ CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
 		mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
 		mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
 		Invoke SendMessage, hList, LVM_SETITEMSTATE,0,ADDR lvi
+
+		INVOKE szCopy, offset musicList, OFFSET szBuffer
+		mov currentMusicItem,0
 	.ENDIF
 
 
@@ -370,6 +374,7 @@ InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
 	INVOKE szCopy, musicPath, eax 
 	inc	musicListLen
 	invoke	GetMusicNameFromPath, esi
+	INVOKE szCopy, musicPath, OFFSET szBuffer
 
 	
 
@@ -385,12 +390,13 @@ InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
 	mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
 	mov ebx, musicListLen
 	dec ebx
+	mov currentMusicItem, bl
 	Invoke SendMessage, hList, LVM_SETITEMSTATE,ebx,ADDR lvi
 	mov ebx,eax
 
 
 	;renew list file
-	invoke WriteListFile
+	invoke WriteListFile	
 
 	ret
 InsertItem ENDP

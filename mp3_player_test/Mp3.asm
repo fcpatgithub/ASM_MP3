@@ -56,27 +56,35 @@ public hPause
 public hNext
 public hPrevious
 public hList
+public hMixer
+public volume
+public mxcd
+public mixer_id
+public currentMusicItem
 
-
-dwFlag			DWORD	?
-hDevice			DWORD	?
-szBuffer		BYTE	256 dup	(?)
-stOpenFileName	OPENFILENAME	<?>
-Pos				DWORD	?
-volumePos		DWORD   ?
-hWinMain		DWORD ?
-hInstance		DWORD ?
-hPlayButton		DWORD ?
-hNextButton		DWORD ?
-hPreviousButton DWORD ?
-hWinBar			DWORD ?
-hVolumeBar       DWORD ?
-hRect			DWORD ?
-hPlay			DWORD ?
-hPause			DWORD ?
-hNext			DWORD ?
-hPrevious		DWORD ?
-hList			dd  ?
+dwFlag				DWORD	?
+hDevice				DWORD	?
+szBuffer			BYTE	256 dup	(?)
+stOpenFileName		OPENFILENAME	<?>
+Pos					DWORD ?
+volumePos			DWORD ?
+hWinMain			DWORD ?
+hInstance			DWORD ?
+hPlayButton			DWORD ?
+hNextButton			DWORD ?
+hPreviousButton		DWORD ?
+hWinBar				DWORD ?
+hVolumeBar			DWORD ?
+hRect				DWORD ?
+hPlay				DWORD ?
+hPause				DWORD ?
+hNext				DWORD ?
+hPrevious			DWORD ?
+hList				dd  ?
+hMixer				DWORD ?
+volume				MIXERCONTROLDETAILS_SIGNED <?>
+mxcd				MIXERCONTROLDETAILS <?>
+mixer_id			DWORD ?
 currentMusicItem	BYTE ?	
 
 .data
@@ -174,8 +182,10 @@ WinProc PROC,
 		.ELSEIF bx == playBtn_ID
 			INVOKE SwitchTrackState
 		.ELSEIF bx == nextBtn_ID
+			INVOKE PlaybackButtonClicked, 1
 ;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
 		.ELSEIF bx == previousBtn_ID
+			INVOKE PlaybackButtonClicked, 0
 ;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
 		.ENDIF
 ;	.ENDIF
@@ -191,7 +201,9 @@ WinProc PROC,
 				mov isDraging, 1
 			.ENDIF
 		.ELSEIF (edx == hVolumeBar)
-
+;			.IF ebx == SB_ENDSCROLL
+				INVOKE VolumeBarAdjust
+;			.ENDIF
 		.ENDIF
 		pop edx
 		jmp WinProcExit
@@ -202,6 +214,7 @@ WinProc PROC,
 	.ELSEIF eax == WM_CREATE		; create window?
 		INVOKE CreateListWin, hWnd, hInstance					; Playlist
 		INVOKE CreateTrackBar, hWnd, hInstance					; Time bar
+		INVOKE CreateVolumeBar, hWnd, hInstance					; Volume bar
 		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; Next track
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 0			; Previous track
