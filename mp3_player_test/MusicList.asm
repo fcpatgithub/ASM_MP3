@@ -29,7 +29,7 @@ Heading1			db "Filename",0
 Heading2			db "Size",0
 ListName			db "list.txt",0
 ListName2			db "list2.txt",0
-
+Delete	            db "Delete",0
 
 extrn hWinMain		: DWORD
 extrn hList			: DWORD
@@ -291,7 +291,20 @@ L1:
 FillFileInfo endp
 
 
-
+_CreateMenu proc  
+        LOCAL @hPopMenu1  
+        LOCAL @hPopMenu2  
+        invoke CreatePopupMenu  
+        mov @hPopMenu1,eax  
+        invoke CreatePopupMenu  
+        mov @hPopMenu2,eax  
+          
+        invoke AppendMenu,@hPopMenu1,MF_STRING,1003, OFFSET Delete
+          
+        push @hPopMenu1  
+        pop eax  
+        ret  
+    _CreateMenu endp  
 
 
 
@@ -304,6 +317,8 @@ ListProc proc   hCtl	: DWORD,
     LOCAL Buffer[32] :BYTE
 	LOCAL lvi:LV_ITEM
 
+	LOCAL @stPos:POINT  
+    LOCAL @hMenu  
 
     .IF uMsg == WM_LBUTTONDBLCLK
       jmp DoIt
@@ -314,6 +329,15 @@ ListProc proc   hCtl	: DWORD,
     .ELSEIF uMsg == WM_CHAR
       .IF wParam == 13
         jmp DoIt
+      .ENDIF
+	.ELSEIF uMsg == WM_RBUTTONDOWN 
+		 invoke _CreateMenu  
+         mov @hMenu,eax  
+         invoke GetCursorPos,addr @stPos  
+         invoke TrackPopupMenu,@hMenu,TPM_LEFTALIGN,@stPos.x,@stPos.y,NULL,hList,NULL
+	.ELSEIF uMsg == WM_COMMAND
+      .IF wParam == 1003
+        ;jmp DoIt
       .ENDIF
     .ENDIF
     jmp EndDo
