@@ -92,7 +92,7 @@ currentMusicItem	DWORD ?
 DebugText	BYTE "Debug", 0
 
 ErrorTitle  BYTE "Error",0
-WindowName  BYTE "ASM Windows App",0
+WindowName  BYTE "MP3 Player",0
 className   BYTE "ASMWin",0
 workPath	BYTE 1000 dup (?)
 
@@ -293,6 +293,9 @@ start:
 		  ADDR WindowName,WS_VISIBLE+WS_DLGFRAME+WS_CAPTION+WS_BORDER+WS_SYSMENU+WS_MAXIMIZEBOX+WS_MINIMIZEBOX+WS_THICKFRAME,
 		  CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
 		  CW_USEDEFAULT,NULL,NULL,hInstance,NULL
+;		INVOKE CreateWindowEx, 0, ADDR className,
+;		  ADDR WindowName,WS_CAPTION+WS_SYSMENU+WS_MINIMIZEBOX+WS_THICKFRAME,
+;		  100, 100, 650, 500, NULL, NULL ,hInstance, NULL
 		mov hWinMain,eax
 
 ; If CreateWindowEx failed, display a message & exit.
