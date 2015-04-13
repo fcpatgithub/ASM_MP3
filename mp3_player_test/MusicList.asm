@@ -39,9 +39,10 @@ extrn musicListLen	: DWORD
 extern szBuffer		: BYTE
 extern hWinBar		: DWORD
 extrn currentMusicItem : DWORD
+
 .code
 
-GetItemPath PROC uses eax, Path:DWORD, ItemNum:DWORD
+GetItemPath PROC uses eax ebx, Path:DWORD, ItemNum:DWORD
 	mov eax, ItemNum
 	.IF eax < 0 || eax >=musicListLen
 		ret
@@ -337,6 +338,9 @@ ListProc proc   hCtl	: DWORD,
          invoke TrackPopupMenu,@hMenu,TPM_LEFTALIGN,@stPos.x,@stPos.y,NULL,hList,NULL
 	.ELSEIF uMsg == WM_COMMAND
       .IF wParam == 1003
+		invoke SendMessage,hCtl,LVM_GETNEXTITEM,-1,LVNI_SELECTED
+        mov IndexItem, eax
+		invoke deleteItem, eax
         ;jmp DoIt
       .ENDIF
     .ENDIF
@@ -432,6 +436,62 @@ comment*
 
 	ret
 CreateListWin ENDP
+
+
+
+deleteItem PROC uses eax ebx esi edx, ItemNum : DWORD
+	szText Cannot_Delete_Mes,"The music is playing!"
+	szText Cannot_Delete, "Delete Unsuccessfully"
+	mov eax, ItemNum
+	.IF eax < 0 || eax >=musicListLen
+		ret
+	.ENDIF
+	.IF eax == currentMusicItem
+		INVOKE MessageBox, hWinMain, ADDR Cannot_Delete, ADDR Cannot_Delete_Mes, MB_OK
+		ret
+	.ELSEIF eax<currentMusicItem
+		dec currentMusicItem
+	.ENDIF
+
+	mov ebx, INFO_LEN
+	mul ebx
+	add eax, OFFSET musicList
+	
+	mov esi, ItemNum
+	inc esi
+L1:
+	.IF esi >= musicListLen
+		jmp END_DO
+	.ENDIF
+	mov ebx, eax
+	add ebx, INFO_LEN
+	push ebx
+	push eax
+	INVOKE szCopy, ebx, eax
+	pop eax
+	pop ebx
+	add eax, PATH_LEN
+	add ebx, PATH_LEN
+	push ebx
+	push eax
+	INVOKE szCopy, ebx, eax
+	pop eax
+	pop ebx
+	add eax, NAME_LEN
+	add ebx, NAME_LEN
+	mov edx, [ebx]
+	mov [eax], edx
+	add eax, 4
+	add ebx, 4
+	inc esi
+	jmp L1
+
+END_DO:
+	dec musicListLen
+	invoke SendMessage, hList, LVM_DELETEITEM, ItemNum, 0
+	invoke WriteListFile
+	ret
+deleteItem ENDP
 
 InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
 	LOCAL lvi:LV_ITEM
