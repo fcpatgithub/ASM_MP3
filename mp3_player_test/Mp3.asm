@@ -85,7 +85,7 @@ hMixer				DWORD ?
 volume				MIXERCONTROLDETAILS_SIGNED <?>
 mxcd				MIXERCONTROLDETAILS <?>
 mixer_id			DWORD ?
-currentMusicItem	BYTE ?	
+currentMusicItem	DWORD ?	
 
 .data
 
@@ -183,9 +183,11 @@ WinProc PROC,
 			INVOKE SwitchTrackState
 		.ELSEIF bx == nextBtn_ID
 			INVOKE PlaybackButtonClicked, 1
+			INVOKE NextMusic
 ;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
 		.ELSEIF bx == previousBtn_ID
 			INVOKE PlaybackButtonClicked, 0
+			INVOKE PreviousMusic
 ;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
 		.ENDIF
 ;	.ENDIF

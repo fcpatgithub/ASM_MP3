@@ -2,8 +2,9 @@ GetMusicNameFromPath	PROTO, math: DWORD
 InsertColumn			PROTO
 ShowFileInfo			PROTO, row:DWORD, lpFind:DWORD
 FillFileInfo			PROTO
-
-WriteListFile			PROTO
+NextMusic				PROTO
+PreviousMusic			PROTO 
+WriteListFile			PROTO 
 GetList					PROTO
 CreateListWin			PROTO, hWnd: DWORD, hInstance: DWORD
 InsertItem				PROTO, musicPath : ptr BYTE

@@ -38,14 +38,59 @@ extrn musicList		: musicInfo
 extrn musicListLen	: DWORD
 extern szBuffer		: BYTE
 extern hWinBar		: DWORD
-extrn currentMusicItem : BYTE
+extrn currentMusicItem : DWORD
 .code
+
+GetItemPath PROC uses eax, Path:DWORD, ItemNum:DWORD
+	mov eax, ItemNum
+	.IF eax < 0 || eax >=musicListLen
+		ret
+	.ENDIF
+	mov ebx, INFO_LEN
+	mul ebx
+	add eax, OFFSET musicList
+	INVOKE szCopy, eax, Path
+	ret
+	
+GetItemPath ENDP
+
+NextMusic PROC uses eax ebx
+	.IF musicListLen == 0
+		ret
+	.ENDIF
+	inc currentMusicItem
+	mov eax, currentMusicItem
+	.IF eax == musicListLen
+		mov currentMusicItem, 0 
+	.ENDIF
+	INVOKE GetItemPath, OFFSET szBuffer, currentMusicItem
+	INVOKE _StopPlayMP3
+	INVOKE PlayMP3, OFFSET szBuffer
+	ret
+NextMusic ENDP
+
+PreviousMusic PROC uses eax ebx
+	.IF musicListLen == 0
+		ret
+	.ENDIF
+	mov eax, currentMusicItem
+	.IF eax == 0
+		mov eax, musicListLen  
+	.ENDIF
+	dec eax
+	mov currentMusicItem,eax
+	INVOKE GetItemPath, OFFSET szBuffer, currentMusicItem
+	INVOKE _StopPlayMP3
+	INVOKE PlayMP3, OFFSET szBuffer
+	ret
+PreviousMusic ENDP
+
 
 WriteListFile proc uses esi ecx eax
 	LOCAL fname :DWORD
 	LOCAL hFile :DWORD
 
-	mov		fname, OFFSET ListName2
+	mov		fname, OFFSET ListName
 	.IF rv(exist, fname) != 0            
       test fdelete(fname), eax   
     .ENDIF
@@ -298,13 +343,14 @@ comment*
 		  .endif
 *
 	.IF eax != -1 
+		mov currentMusicItem, eax
 		mov ebx, INFO_LEN
 		mul ebx
 		add eax, OFFSET musicList
 		INVOKE szCopy, eax, OFFSET szBuffer
 		INVOKE _StopPlayMP3
 		INVOKE PlayMP3, OFFSET szBuffer
-
+		
 	.ENDIF
 		
 		
@@ -390,7 +436,7 @@ InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
 	mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
 	mov ebx, musicListLen
 	dec ebx
-	mov currentMusicItem, bl
+	mov currentMusicItem, ebx
 	Invoke SendMessage, hList, LVM_SETITEMSTATE,ebx,ADDR lvi
 	mov ebx,eax
 
