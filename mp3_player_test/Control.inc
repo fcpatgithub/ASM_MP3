@@ -11,3 +11,6 @@ playBtn_ID		EQU 400
 nextBtn_ID		EQU	401
 previousBtn_ID	EQU 402
 Bar_ID			EQU 233
+
+windowWidth		EQU 360
+windowHeight	EQU 650

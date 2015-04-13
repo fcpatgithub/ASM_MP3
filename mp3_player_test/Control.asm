@@ -53,9 +53,12 @@ barclassName	BYTE "msctls_trackbar32",0
 CreatePlayButton PROC,
 	hWnd: DWORD, hIns: DWORD
 
+;	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
+;		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
+;		10, 10, 50, 50, hWnd, playBtn_ID, hIns, NULL
 	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
 		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
-		10, 10, 50, 50, hWnd, playBtn_ID, hIns, NULL
+		windowWidth / 2 - 25, 50, 50, 50, hWnd, playBtn_ID, hIns, NULL
 	mov hPlayButton, eax
 	INVOKE SetImage, hPlayButton, hPlay	
 	INVOKE CreateEllipticRgn, 0, 0, 50, 50
@@ -68,7 +71,7 @@ CreateTrackBar PROC,
 	hWnd: DWORD, hIns: DWORD
 
 	INVOKE CreateWindowEx, NULL, ADDR barclassName,
-		ADDR barName,WS_CHILD+WS_VISIBLE,70,70,200,20, hWnd,Bar_ID,hIns,NULL
+		ADDR barName,WS_CHILD+WS_VISIBLE, windowWidth / 2 - 100, 20, 200, 20, hWnd,Bar_ID,hIns,NULL
 	mov hWinBar, eax
 	INVOKE SendMessage, hWinBar, TBM_SETPAGESIZE, 0, 1
 	
@@ -83,9 +86,9 @@ CreateVolumeBar PROC,
 	LOCAL mxlc:			MIXERLINECONTROLS
 
 	INVOKE CreateWindowEx, NULL, ADDR barclassName,
-		ADDR barName,WS_CHILD+WS_VISIBLE,370,70,200,20, hWnd,Bar_ID,hIns,NULL
+		ADDR barName,WS_CHILD+WS_VISIBLE, windowWidth / 2 - 50, 120, 100, 20, hWnd, Bar_ID, hIns, NULL
 	mov hVolumeBar, eax
-	INVOKE SendMessage, hVolumeBar, TBM_SETPAGESIZE, 0, 2
+	INVOKE SendMessage, hVolumeBar, TBM_SETPAGESIZE, 0, 1
 	
 	INVOKE mixerOpen, ADDR hMixer, 0, hWinMain, NULL, MIXER_OBJECTF_MIXER or CALLBACK_WINDOW
 	mov mxl.cbStruct, SIZEOF MIXERLINE
@@ -161,14 +164,16 @@ CreatePlaybackButton PROC,
 	; mode = 1 -> next
 
 	.IF mode == 1
-		mov btnX, 400
+;		mov btnX, 400
+		mov btnX, windowWidth / 2 + 50
 		mov btnID, nextBtn_ID
 		push ebx
 		mov ebx, hNext
 		mov imageHandle, ebx
 		pop ebx
 	.ELSEIF mode == 0
-		mov btnX, 300
+;		mov btnX, 300
+		mov btnX, windowWidth / 2 - 85
 		mov btnID, previousBtn_ID
 		push ebx
 		mov ebx, hPrevious
@@ -177,10 +182,10 @@ CreatePlaybackButton PROC,
 	.ENDIF
 	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
 		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
-		btnX, 10, 50, 50, hWnd, btnID, hIns, NULL
+		btnX, 60, 30, 30, hWnd, btnID, hIns, NULL
 	mov btnHandle, eax
 	INVOKE SetImage, btnHandle, imageHandle
-	INVOKE CreateEllipticRgn, 0, 0, 50, 50
+	INVOKE CreateEllipticRgn, 0, 0, 30, 30
 	INVOKE SetWindowRgn, btnHandle, eax, TRUE
 	.IF mode == 1
 		push ebx

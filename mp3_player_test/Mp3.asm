@@ -89,7 +89,9 @@ hMixer				DWORD ?
 volume				MIXERCONTROLDETAILS_SIGNED <?>
 mxcd				MIXERCONTROLDETAILS <?>
 mixer_id			DWORD ?
-currentMusicItem	DWORD ?	
+currentMusicItem	DWORD ?
+xCtr				DWORD ?
+yCtr				DWORD ?
 
 .data
 
@@ -121,8 +123,11 @@ musicList musicInfo MAX_LIST_LEN dup(<>)
 musicListLen DWORD 0
 isDraging byte 0
 
+
 .const
-IDM_EXIT equ 203
+IDM_EXIT		EQU 203
+windowWidth		EQU 360
+windowHeight	EQU 650
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -293,13 +298,25 @@ start:
 
 ; Create the application's main window.
 ; Returns a handle to the main window in EAX.
-		INVOKE CreateWindowEx, 0, ADDR className,
-		  ADDR WindowName,WS_VISIBLE+WS_DLGFRAME+WS_CAPTION+WS_BORDER+WS_SYSMENU+WS_MAXIMIZEBOX+WS_MINIMIZEBOX+WS_THICKFRAME,
-		  CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
-		  CW_USEDEFAULT,NULL,NULL,hInstance,NULL
 ;		INVOKE CreateWindowEx, 0, ADDR className,
-;		  ADDR WindowName,WS_CAPTION+WS_SYSMENU+WS_MINIMIZEBOX+WS_THICKFRAME,
-;		  100, 100, 650, 500, NULL, NULL ,hInstance, NULL
+;		  ADDR WindowName,WS_VISIBLE+WS_DLGFRAME+WS_CAPTION+WS_BORDER+WS_SYSMENU+WS_MAXIMIZEBOX+WS_MINIMIZEBOX+WS_THICKFRAME,
+;		  CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
+;		  CW_USEDEFAULT,NULL,NULL,hInstance,NULL
+		INVOKE GetSystemMetrics, SM_CXSCREEN
+		mov ebx, 2
+		xor edx, edx
+		div ebx
+		sub eax, windowWidth / 2
+		mov xCtr, eax
+		INVOKE GetSystemMetrics, SM_CYSCREEN
+		mov ebx, 2
+		xor edx, edx
+		div ebx
+		sub eax, windowHeight / 2
+		mov yCtr, eax
+		INVOKE CreateWindowEx, 0, ADDR className,
+		  ADDR WindowName,WS_CAPTION+WS_SYSMENU+WS_MINIMIZEBOX+WS_THICKFRAME,
+		  xCtr, yCtr, windowWidth, windowHeight, NULL, NULL ,hInstance, NULL
 		mov hWinMain,eax
 
 ; If CreateWindowEx failed, display a message & exit.
