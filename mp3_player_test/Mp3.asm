@@ -12,6 +12,8 @@ include     msgstruct.inc
 include     Gdi32.inc
 include		masm32rt.inc
 
+
+
 includelib	user32.lib
 includelib	kernel32.lib
 includelib	comctl32.lib
@@ -199,6 +201,9 @@ WinProc PROC,
 			call _GetFileName
 		.ELSEIF ebx == ID_OPEN_LIST
 			call GetListFileName
+			invoke ShowList
+		.ELSEIF ebx == ID_NEW_LIST
+			invoke CreateNewListWnd
 		.ELSEIF bx == playBtn_ID
 			INVOKE SwitchTrackState
 		.ELSEIF bx == nextBtn_ID
@@ -234,7 +239,7 @@ WinProc PROC,
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
 		jmp WinProcExit
 	.ELSEIF eax == WM_CREATE		; create window?
-		INVOKE CreateListWin, hWnd, hInstance					; Playlist
+		INVOKE CreateListWin, hWnd								; Playlist
 		INVOKE CreateTrackBar, hWnd, hInstance					; Time bar
 		INVOKE CreateVolumeBar, hWnd, hInstance					; Volume bar
 		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button

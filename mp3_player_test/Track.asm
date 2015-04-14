@@ -52,6 +52,7 @@ szDevice	BYTE	"MPEGVideo",0
 szTitleSave	BYTE	"Open MP3 file...",0
 szExt		BYTE	'*.mp3',0
 szFilter	BYTE	'MP3 Files(*.mp3)',0,'*.mp3',0,'All Files(*.*)',0,'*.*',0,0
+filterList	BYTE	'LIST Files(*.list)',0,'*.list',0,0
 str_time    BYTE    256 dup(?)
 
 .code
@@ -64,7 +65,7 @@ GetListFileName proc
 		mov	stOpenFileName.lStructSize,SIZEOF stOpenFileName
 		mov	eax,hWinMain
 		mov	stOpenFileName.hWndOwner,eax
-		;mov	stOpenFileName.lpstrFilter,offset szFilter	;
+		mov	stOpenFileName.lpstrFilter,offset filterList	;
 		mov	stOpenFileName.lpstrFile,offset ListName	;
 		mov	stOpenFileName.nMaxFile,255			;
 		mov	stOpenFileName.lpstrInitialDir,0
@@ -77,6 +78,7 @@ GetListFileName proc
 		.endif
 		INVOKE SetImage, hPlayButton, hPlay
 		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, 0
+		INVOKE WriteListName
 		call	_StopPlayMP3
 		ret
 GetListFileName ENDP

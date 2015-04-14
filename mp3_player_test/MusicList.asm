@@ -15,6 +15,7 @@ include		masm32rt.inc
 include		MusicList.inc
 include		Track.inc
 
+
 includelib	user32.lib
 includelib	kernel32.lib
 includelib	comctl32.lib
@@ -32,7 +33,7 @@ Heading2			db "Size",0
 ;ListName			db "list.txt",0
 ListName			db PATH_LEN dup (0)
 Delete	            db "Delete",0
-
+className   BYTE "ASMWin",0
 
 extrn hWinMain		: DWORD
 extrn hList			: DWORD
@@ -43,7 +44,7 @@ extern szBuffer		: BYTE
 extern hWinBar		: DWORD
 extrn currentMusicItem : DWORD
 extrn config		: BYTE
-
+extrn hInstance     : DWORD
 .code
 
 GetItemPath PROC uses eax ebx, Path:DWORD, ItemNum:DWORD
@@ -256,11 +257,14 @@ ShowMusicItem endp
 
 
 
-FillFileInfo proc uses edi
+ShowList proc uses edi
 	LOCAL finddata:WIN32_FIND_DATA
 	LOCAL FHandle:DWORD
 	LOCAL lina:DWORD
+	LOCAL lvi:LV_ITEM
 	
+	invoke SendMessage, hList,LVM_DELETEALLITEMS ,0,0
+
 	invoke GetList
 	xor edi, edi
 L1:
@@ -292,8 +296,17 @@ L1:
 		invoke FindClose,FHandle
 	.endif
 *
+	mov currentMusicItem, -1
+	.IF musicListLen >0		
+		mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
+		mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
+		Invoke SendMessage, hList, LVM_SETITEMSTATE,0,ADDR lvi
+
+		INVOKE szCopy, offset musicList, OFFSET szBuffer
+		mov currentMusicItem,0
+	.ENDIF
 	ret
-FillFileInfo endp
+ShowList endp
 
 
 _CreateMenu proc  
@@ -338,7 +351,6 @@ GetListName PROC uses eax ebx
 		invoke	read_disk_file, OFFSET config, ADDR bufAdd, ADDR bufSize 
 	.ENDIF
 	INVOKE szCopy, bufAdd, OFFSET ListName
-	INVOKE WriteListName
 	ret
 GetListName ENDP
 
@@ -429,9 +441,130 @@ EndDo:
 
 ListProc endp
 
+comment*
+DiaProc proc   hCtl	: DWORD,
+                uMsg	: DWORD,
+                wParam	: DWORD,
+                lParam	: DWORD
 
-CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
+    LOCAL IndexItem  :DWORD
+    LOCAL Buffer[32] :BYTE
 	LOCAL lvi:LV_ITEM
+
+	LOCAL @stPos:POINT  
+    LOCAL @hMenu  
+
+    
+    ;invoke CallWindowProc,ListProP,hCtl,uMsg,wParam,lParam
+
+    ret
+
+DiaProc endp
+*
+
+
+GetTextProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
+
+    LOCAL buffer:DWORD
+    LOCAL hEdit :DWORD
+    LOCAL tl    :DWORD
+
+    .if uMsg == WM_INITDIALOG
+    ; -----------------------------------------
+    ; write the parameters passed in "lParam"
+    ; to the dialog's GWL_USERDATA address.
+    ; -----------------------------------------
+      invoke SetWindowLong,hWin,GWL_USERDATA,lParam
+      mov eax, lParam
+      mov eax, [eax+4]
+      invoke SendMessage,hWin,WM_SETICON,1,eax
+
+    .elseif uMsg == WM_COMMAND
+      .if wParam == IDOK
+        invoke GetDlgItem,hWin,100
+        mov hEdit, eax
+        invoke GetWindowTextLength,hEdit
+        cmp eax, 0
+        je @F
+        mov tl, eax
+        inc tl
+        invoke GetWindowLong,hWin,GWL_USERDATA      ; get buffer address
+        mov ecx, [eax+8]                            ; put it in ECX
+        invoke SendMessage,hEdit,WM_GETTEXT,tl,ecx  ; write edit text to buffer
+        jmp Exit_Find_Text
+
+      @@:
+        invoke SetFocus,hEdit
+
+      .elseif wParam == IDCANCEL
+        jmp Exit_Find_Text
+      .endif
+
+    .elseif uMsg == WM_CLOSE
+      Exit_Find_Text:
+      invoke EndDialog,hWin,0
+
+    .endif
+
+    xor eax, eax
+    ret
+
+GetTextProc endp
+
+GetText proc hParent:DWORD,buffer:DWORD
+
+    Dialog "Enter Text","MS Sans Serif",8, \               ; caption,font,pointsize
+            WS_OVERLAPPED or WS_SYSMENU or DS_CENTER, \     ; style
+            4, \                                            ; control count
+            0,0,200,50, \                                   ; x y co-ordinates
+            1024                                            ; memory buffer size
+
+	DlgStatic "New List Name:",SS_LEFT,10,4,60,10,1205
+    ;DlgScroll SS_LEFT,10,10,60,9,100
+    DlgEdit     WS_TABSTOP or WS_BORDER,10,15,125,10,1200
+    DlgButton   "OK",WS_TABSTOP,160,4,30,10,IDOK
+    DlgButton   "Cancel",WS_TABSTOP,160,15,30,10,IDCANCEL
+   ; DlgIcon     500,5,5,101
+
+  ; --------------------------------------------------------
+  ; the use of "ADDR hParent" is to pass the address of the
+  ; stack parameters in this proc to the proc being called.
+  ; --------------------------------------------------------
+    CallModalDialog hInstance,hParent,GetTextProc,ADDR hParent
+
+    ret
+GetText ENDP
+
+CreateNewListWnd PROC
+	;INVOKE CreateWindowEx, 0, IDD_DIALOG1,
+	;	  0,WS_CHILD+WS_VISIBLE,
+	;	  10, 10, 100, 50, hWinMain, NULL ,hInstance, NUL
+	;INVOKE DialogBoxParamA, hInstance, IDD_DIALOG1, hWinMain, DiaProc ,0 
+	LOCAL buffer:DWORD
+
+	invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT, 32
+    mov buffer, eax
+   
+    invoke GetText,hWinMain,buffer
+    mov ecx, buffer
+    cmp BYTE PTR [ecx], 0
+    je nxt
+	
+	invoke szCopy, buffer, OFFSET ListName
+	invoke WriteListName
+	invoke ShowList
+	
+	invoke MessageBox,hWinMain,buffer,SADD("You typed ..."),MB_OK
+
+nxt:
+    invoke GlobalFree,buffer
+
+	ret
+CreateNewListWnd ENDP
+
+
+CreateListWin PROC, hWnd: DWORD
+	
 
 	invoke CreateWindowEx, NULL, addr ListViewClassName, NULL, \
 			LVS_LIST+WS_CHILD+WS_VISIBLE+LVS_SHOWSELALWAYS, 0, 170, 500, 430, hWnd, NULL, hInstance, NULL
@@ -441,7 +574,7 @@ CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
 	invoke SetWindowLong,hList,GWL_WNDPROC,ListProc
 	mov ListProP, eax
 	invoke InsertColumn
-	invoke FillFileInfo
+
 	RGB 255,255,255
 	invoke SendMessage,hList,LVM_SETTEXTCOLOR,0,eax
 	RGB 200,200,200
@@ -449,14 +582,8 @@ CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
 	RGB 0,0,0
 	invoke SendMessage,hList,LVM_SETTEXTBKCOLOR,0,eax
 
-	.IF musicListLen >0		
-		mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
-		mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
-		Invoke SendMessage, hList, LVM_SETITEMSTATE,0,ADDR lvi
+	invoke ShowList
 
-		INVOKE szCopy, offset musicList, OFFSET szBuffer
-		mov currentMusicItem,0
-	.ENDIF
 
 
 
