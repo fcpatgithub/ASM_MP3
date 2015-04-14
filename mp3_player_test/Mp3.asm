@@ -63,6 +63,9 @@ public mixer_id
 public currentMusicItem
 public totalTime
 public currentTime
+public htotalTime
+public hcurrentTime
+public hMusicName
 
 
 dwFlag				DWORD	?
@@ -73,8 +76,11 @@ Pos					DWORD ?
 volumePos			DWORD ?
 hWinMain			DWORD ?
 hInstance			DWORD ?
+hMusicName          DWORD ?
 totalTime			DWORD 0
 currentTime			DWORD 0
+htotalTime			DWORD ?
+hcurrentTime		DWORD ?
 hPlayButton			DWORD ?
 hNextButton			DWORD ?
 hPreviousButton		DWORD ?
@@ -102,6 +108,7 @@ ErrorTitle  BYTE "Error",0
 WindowName  BYTE "MP3 Player",0
 className   BYTE "ASMWin",0
 config		BYTE "config",0
+
 workPath	BYTE 1000 dup (?)
 
 ; Define the Application's Window class structure.
@@ -131,6 +138,7 @@ extrn ListName :BYTE
 IDM_EXIT		EQU 203
 windowWidth		EQU 360
 windowHeight	EQU 650
+
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -234,6 +242,7 @@ WinProc PROC,
 		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; Next track
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 0			; Previous track
+		INVOKE CreateStatic, hWnd, hInstance					; Static
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
 	  INVOKE PostQuitMessage,0

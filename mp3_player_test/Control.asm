@@ -30,6 +30,9 @@ extern hNextButton		: DWORD
 extern hPreviousButton  : DWORD
 extern hWinBar			: DWORD
 extern hWinMain			: DWORD
+extern htotalTime		: DWORD
+extern hMusicName		: DWORD
+extern hcurrentTime		: DWORD
 extern hVolumeBar		: DWORD
 extern hRect			: DWORD
 extern hPlay			: DWORD
@@ -46,6 +49,9 @@ ButtonClassName BYTE "button", 0
 ButtonText		BYTE " ", 0
 barName			BYTE "msctls_trackbar32",0
 barclassName	BYTE "msctls_trackbar32",0
+EditClass	BYTE "Static", 0
+EmptyStr	BYTE " ", 0
+
 
 .code
 
@@ -210,4 +216,28 @@ PlaybackButtonClicked PROC,
 	ret
 PlaybackButtonClicked ENDP
 ;********************************************************************
+CreateStatic PROC,
+	hWnd: DWORD, hIns: DWORD
+
+	invoke CreateWindowEx,NULL,ADDR EditClass,ADDR EditClass,
+                   WS_VISIBLE or WS_CHILD,20,20,50,20,hWnd,STATIC1_ID,
+                   hIns,NULL
+	mov hcurrentTime, eax
+	invoke SetWindowText, hcurrentTime, ADDR EmptyStr
+
+	invoke CreateWindowEx,NULL,ADDR EditClass,ADDR EditClass,
+                   WS_VISIBLE or WS_CHILD,290,20,50,20,hWnd,STATIC2_ID,
+                   hIns,NULL
+	mov htotalTime, eax
+	invoke SetWindowText, htotalTime, ADDR EmptyStr
+
+	invoke CreateWindowEx,NULL,ADDR EditClass,ADDR EditClass,
+                   WS_VISIBLE or WS_CHILD,150,0,50,20,hWnd,STATIC3_ID,
+                   hIns,NULL
+	mov hMusicName, eax
+	invoke SetWindowText, hMusicName, ADDR EmptyStr
+
+	ret
+CreateStatic ENDP
+
 END

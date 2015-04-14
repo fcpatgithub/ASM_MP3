@@ -35,6 +35,8 @@ extern Pos				: DWORD
 extern volume			: DWORD
 extern totalTime		: DWORD
 extern currentTime		: DWORD
+extern htotalTime		: DWORD
+extern hcurrentTime		: DWORD
 extern volumePos		: DWORD
 extern isDraging		: BYTE
 extern workPath			: DWORD
@@ -50,11 +52,12 @@ szDevice	BYTE	"MPEGVideo",0
 szTitleSave	BYTE	"Open MP3 file...",0
 szExt		BYTE	'*.mp3',0
 szFilter	BYTE	'MP3 Files(*.mp3)',0,'*.mp3',0,'All Files(*.*)',0,'*.*',0,0
-
+str_time    BYTE    256 dup(?)
 
 .code
 
 ;********************************************************************
+
 GetListFileName proc
 
 		mov	stOpenFileName.Flags,OFN_PATHMUSTEXIST or OFN_FILEMUSTEXIST
@@ -77,6 +80,52 @@ GetListFileName proc
 		call	_StopPlayMP3
 		ret
 GetListFileName ENDP
+
+
+getTimeString PROC, time: DWORD
+	local sec :WORD
+	local min :WORD
+
+	push eax
+	push esi
+	push ecx
+	push edx
+
+	lea esi, str_time
+	mov edx, 0
+	mov ecx, 1000
+	div ecx
+	mov edx, 0
+	mov cx, 60
+	div cx
+	mov min, ax
+	mov sec, dx
+
+	mov ax, min
+	mov cl, 10
+	div cl
+	add al, 48
+	add ah, 48
+	mov [esi], al
+	mov [esi+1], ah
+
+	mov al, ':'
+	mov [esi+2], al
+
+	mov ax, sec
+	mov cl, 10
+	div cl
+	add al, 48
+	add ah, 48
+	mov [esi+3], al
+	mov [esi+4], ah
+
+	pop edx
+	pop ecx
+	pop edx
+	pop eax
+	ret
+getTimeString ENDP
 
 _GetFileName	proc
 
@@ -166,7 +215,11 @@ PlayMP3	proc musicPath : ptr BYTE
 			mov	hDevice,eax
 			mov	eax,hWinMain
 			mov	@stMCIPlay.dwCallback,eax
+
 			invoke _getTotalTiem
+			invoke getTimeString, totalTime
+			invoke SetWindowText, htotalTime, ADDR str_time
+
 			invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
 		.else
 
@@ -265,12 +318,19 @@ _AutochangePosition		proc
 		mov ecx, @stMCIStatus.dwReturn
 		push ecx
 		mov eax, MCI_STATUS_POSITION
-		mov currentTime, eax
+
 		mov  @stMCIStatus.dwItem, eax
 		mov	eax,hWinMain
 		mov	@stMCIStatus.dwCallback,eax
 		invoke	mciSendCommand,hDevice,MCI_STATUS,MCI_STATUS_ITEM,addr @stMCIStatus
 		mov eax, @stMCIStatus.dwReturn
+
+		push eax
+		mov currentTime, eax
+		invoke getTimeString, currentTime
+		invoke SetWindowText, hcurrentTime, ADDR str_time
+		pop eax
+
 		pop ecx
 		mov edx, 0
 		imul eax, 100
