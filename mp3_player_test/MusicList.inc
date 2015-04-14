@@ -10,6 +10,7 @@ CreateListWin			PROTO, hWnd: DWORD, hInstance: DWORD
 InsertItem				PROTO, musicPath : ptr BYTE
 GetItemPath				PROTO, Path:DWORD, ItemNum:DWORD
 deleteItem				PROTO, ItemNum : DWORD
+GetListName				PROTO
 PATH_LEN		equ 256
 NAME_LEN		equ 64
 INFO_LEN		equ PATH_LEN+NAME_LEN+4

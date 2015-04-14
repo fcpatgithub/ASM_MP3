@@ -23,13 +23,16 @@ includelib	winmm.lib
 
 .data
 
+public ListName
+
 ListProP			dd 0
 ListViewClassName	db "SysListView32",0
 Heading1			db "Filename",0
 Heading2			db "Size",0
-ListName			db "list.txt",0
-ListName2			db "list2.txt",0
+;ListName			db "list.txt",0
+ListName			db PATH_LEN dup (0)
 Delete	            db "Delete",0
+
 
 extrn hWinMain		: DWORD
 extrn hList			: DWORD
@@ -39,6 +42,7 @@ extrn musicListLen	: DWORD
 extern szBuffer		: BYTE
 extern hWinBar		: DWORD
 extrn currentMusicItem : DWORD
+extrn config		: BYTE
 
 .code
 
@@ -306,6 +310,38 @@ _CreateMenu proc
         pop eax  
         ret  
     _CreateMenu endp  
+
+
+WriteListName PROC uses esi eax ebx ecx
+	LOCAL fname :DWORD
+	LOCAL hFile :DWORD
+
+	mov		fname, OFFSET config
+	.IF rv(exist, fname) != 0            
+      test fdelete(fname), eax   
+    .ENDIF
+    mov		hFile, fcreate(fname)
+
+	mov		esi, OFFSET ListName
+	;fprint	hFile,esi
+	mov eax, fwrite(hFile,esi,len(esi))        ; write data to it
+
+	fclose	hFile
+	ret
+
+WriteListName ENDP
+
+GetListName PROC uses eax ebx
+	LOCAL bufSize	: DWORD
+	LOCAL bufAdd    : DWORD
+	.IF rv(exist, ADDR config) != 0 
+		invoke	read_disk_file, OFFSET config, ADDR bufAdd, ADDR bufSize 
+	.ENDIF
+	INVOKE szCopy, bufAdd, OFFSET ListName
+	INVOKE WriteListName
+	ret
+GetListName ENDP
+
 
 
 

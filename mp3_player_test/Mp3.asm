@@ -64,6 +64,7 @@ public currentMusicItem
 public totalTime
 public currentTime
 
+
 dwFlag				DWORD	?
 hDevice				DWORD	?
 szBuffer			BYTE	256 dup	(?)
@@ -100,6 +101,7 @@ DebugText	BYTE "Debug", 0
 ErrorTitle  BYTE "Error",0
 WindowName  BYTE "MP3 Player",0
 className   BYTE "ASMWin",0
+config		BYTE "config",0
 workPath	BYTE 1000 dup (?)
 
 ; Define the Application's Window class structure.
@@ -111,6 +113,7 @@ winRect   RECT <>
 
 MyMenu BYTE "FirstMenu", 0
 
+public config
 public workPath
 public template
 public musicList
@@ -122,7 +125,7 @@ template db "%lu",0
 musicList musicInfo MAX_LIST_LEN dup(<>)
 musicListLen DWORD 0
 isDraging byte 0
-
+extrn ListName :BYTE
 
 .const
 IDM_EXIT		EQU 203
@@ -188,6 +191,8 @@ WinProc PROC,
 ;	.IF eax == WM_COMMAND
 		.IF ebx == ID_BROWSE
 			call _GetFileName
+		.ELSEIF ebx == ID_OPEN_LIST
+			call GetListFileName
 		.ELSEIF bx == playBtn_ID
 			INVOKE SwitchTrackState
 		.ELSEIF bx == nextBtn_ID
@@ -267,6 +272,9 @@ messageID  DWORD ?
 	ret
 ErrorHandler ENDP
 ;********************************************************************
+
+
+
 start:
 	Invoke GetCurrentDirectory, 1000, ADDR workPath
 	mov	hInstance,0
@@ -274,6 +282,10 @@ start:
 		mov eax, eax
 		invoke	GetModuleHandle,NULL
 		mov	hInstance,eax
+	
+	invoke GetListName
+	
+	
 
 ; Load Bitmap
 ;		INVOKE LoadImage, hInstance, IDB_PAUSE, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR

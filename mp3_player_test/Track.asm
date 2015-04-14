@@ -40,6 +40,7 @@ extern isDraging		: BYTE
 extern workPath			: DWORD
 extern mxcd				: MIXERCONTROLDETAILS
 extern hMixer			: DWORD
+extrn  ListName			: DWORD
 
 szCaption	BYTE	"Error...",0
 szError		BYTE	"Error to play MP3 file!",0
@@ -54,6 +55,29 @@ szFilter	BYTE	'MP3 Files(*.mp3)',0,'*.mp3',0,'All Files(*.*)',0,'*.*',0,0
 .code
 
 ;********************************************************************
+GetListFileName proc
+
+		mov	stOpenFileName.Flags,OFN_PATHMUSTEXIST or OFN_FILEMUSTEXIST
+		mov	stOpenFileName.lStructSize,SIZEOF stOpenFileName
+		mov	eax,hWinMain
+		mov	stOpenFileName.hWndOwner,eax
+		;mov	stOpenFileName.lpstrFilter,offset szFilter	;
+		mov	stOpenFileName.lpstrFile,offset ListName	;
+		mov	stOpenFileName.nMaxFile,255			;
+		mov	stOpenFileName.lpstrInitialDir,0
+		mov	stOpenFileName.lpstrTitle,offset szTitleSave
+		;mov	stOpenFileName.lpstrDefExt,offset szExt
+		invoke	GetOpenFileName,offset stOpenFileName
+		invoke	SetCurrentDirectory, ADDR workPath
+		.if	eax == FALSE
+			ret
+		.endif
+		INVOKE SetImage, hPlayButton, hPlay
+		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, 0
+		call	_StopPlayMP3
+		ret
+GetListFileName ENDP
+
 _GetFileName	proc
 
 		mov	stOpenFileName.Flags,OFN_PATHMUSTEXIST or OFN_FILEMUSTEXIST

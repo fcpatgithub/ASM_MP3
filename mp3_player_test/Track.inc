@@ -6,6 +6,8 @@ _PausePlayMP3	PROTO
 _StopPlayMP3	PROTO
 _SeekMP3		PROTO
 _AutochangePosition	PROTO
+GetListFileName PROTO
 
-ID_BROWSE	equ		1001
-ID_FILE		equ		1002
+ID_BROWSE		equ		1001
+ID_FILE			equ		1002
+ID_OPEN_LIST	equ		1004

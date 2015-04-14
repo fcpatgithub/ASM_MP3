@@ -2,9 +2,10 @@
 #include	<resource.h>
 #include	<windef.h>
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#define		DLG_MAIN	1000
-#define		ID_BROWSE	1001
-#define		ID_FILE		1002
+#define		DLG_MAIN		1000
+#define		ID_BROWSE		1001
+#define		ID_FILE			1002
+#define		ID_OPEN_LIST	1004
 
 #define IDM_EXIT 203
 
@@ -33,6 +34,7 @@ FirstMenu MENU
  POPUP "&Files" 
         { 
          MENUITEM "&Browse",ID_BROWSE
+		 MENUITEM "&Open List",ID_OPEN_LIST
          MENUITEM SEPARATOR 
          MENUITEM "E&xit",IDM_EXIT 
         } 
