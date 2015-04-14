@@ -6,6 +6,7 @@
 #define		ID_BROWSE		1001
 #define		ID_FILE			1002
 #define		ID_OPEN_LIST	1004
+#define		ID_NEW_LIST		1005
 
 #define IDM_EXIT 203
 
@@ -34,8 +35,10 @@ FirstMenu MENU
  POPUP "&Files" 
         { 
          MENUITEM "&Browse",ID_BROWSE
+		 MENUITEM SEPARATOR 	
 		 MENUITEM "&Open List",ID_OPEN_LIST
+		 MENUITEM "&New List",ID_NEW_LIST
          MENUITEM SEPARATOR 
-         MENUITEM "E&xit",IDM_EXIT 
+         MENUITEM "&Exit",IDM_EXIT 
         } 
 } 

@@ -481,7 +481,7 @@ GetTextProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
 
     .elseif uMsg == WM_COMMAND
       .if wParam == IDOK
-        invoke GetDlgItem,hWin,100
+        invoke GetDlgItem,hWin,1200
         mov hEdit, eax
         invoke GetWindowTextLength,hEdit
         cmp eax, 0
@@ -513,7 +513,7 @@ GetTextProc endp
 
 GetText proc hParent:DWORD,buffer:DWORD
 
-    Dialog "Enter Text","MS Sans Serif",8, \               ; caption,font,pointsize
+    Dialog "Enter Text","MS Sans Serif",10, \               ; caption,font,pointsize
             WS_OVERLAPPED or WS_SYSMENU or DS_CENTER, \     ; style
             4, \                                            ; control count
             0,0,200,50, \                                   ; x y co-ordinates
@@ -550,11 +550,14 @@ CreateNewListWnd PROC
     cmp BYTE PTR [ecx], 0
     je nxt
 	
+
+	szText tail,".list"
+	invoke szCatStr, buffer, ADDR tail
 	invoke szCopy, buffer, OFFSET ListName
 	invoke WriteListName
 	invoke ShowList
 	
-	invoke MessageBox,hWinMain,buffer,SADD("You typed ..."),MB_OK
+	;invoke MessageBox,hWinMain,buffer,SADD("You typed ..."),MB_OK
 
 nxt:
     invoke GlobalFree,buffer
