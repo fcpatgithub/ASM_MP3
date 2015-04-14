@@ -12,8 +12,6 @@ include     msgstruct.inc
 include     Gdi32.inc
 include		masm32rt.inc
 
-
-
 includelib	user32.lib
 includelib	kernel32.lib
 includelib	comctl32.lib
