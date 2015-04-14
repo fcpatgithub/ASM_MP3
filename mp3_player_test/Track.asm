@@ -43,7 +43,7 @@ extern workPath			: DWORD
 extern mxcd				: MIXERCONTROLDETAILS
 extern hMixer			: DWORD
 extrn  ListName			: DWORD
-
+extrn hMusicName		: DWORD
 szCaption	BYTE	"Error...",0
 szError		BYTE	"Error to play MP3 file!",0
 szPlay		BYTE	"&Play",0
@@ -54,7 +54,7 @@ szExt		BYTE	'*.mp3',0
 szFilter	BYTE	'MP3 Files(*.mp3)',0,'*.mp3',0,'All Files(*.*)',0,'*.*',0,0
 filterList	BYTE	'LIST Files(*.list)',0,'*.list',0,0
 str_time    BYTE    256 dup(?)
-
+ShowStr     BYTE    100 dup (?)
 .code
 
 ;********************************************************************
@@ -231,6 +231,10 @@ PlayMP3	proc musicPath : ptr BYTE
 		.if	eax == 0
 			INVOKE SetImage, hPlayButton, hPause
 			invoke	SetDlgItemText,hWinMain,IDOK,offset szStop
+			INVOKE szCopy, musicPath  , OFFSET szBuffer
+			invoke GetMusicNameFromPath, OFFSET szBuffer, OFFSET ShowStr
+			invoke SetWindowText, hMusicName, ADDR ShowStr
+			
 			mov	dwFlag, 1
 		.else
 			invoke	MessageBox,hWinMain,addr szError,addr szCaption,MB_OK

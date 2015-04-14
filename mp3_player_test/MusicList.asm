@@ -14,7 +14,8 @@ include     msgstruct.inc
 include		masm32rt.inc
 include		MusicList.inc
 include		Track.inc
-
+include     Control.inc
+include		Image.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
@@ -33,8 +34,12 @@ Heading2			db "Size",0
 ;ListName			db "list.txt",0
 ListName			db PATH_LEN dup (0)
 Delete	            db "Delete",0
+ShowStr				BYTE 100 dup (?)
+
+
 className   BYTE "ASMWin",0
 
+extrn hMusicName	: DWORD
 extrn hWinMain		: DWORD
 extrn hList			: DWORD
 extrn template		: WORD
@@ -45,6 +50,9 @@ extern hWinBar		: DWORD
 extrn currentMusicItem : DWORD
 extrn config		: BYTE
 extrn hInstance     : DWORD
+extrn hPause		: DWORD
+extrn hPlayButton	: DWORD
+extrn hPlay			: DWORD
 .code
 
 GetItemPath PROC uses eax ebx, Path:DWORD, ItemNum:DWORD
@@ -57,7 +65,6 @@ GetItemPath PROC uses eax ebx, Path:DWORD, ItemNum:DWORD
 	add eax, OFFSET musicList
 	INVOKE szCopy, eax, Path
 	ret
-	
 GetItemPath ENDP
 
 NextMusic PROC uses eax ebx
@@ -123,7 +130,7 @@ WriteListFile endp
 
 
 
-GetList PROC
+GetList PROC uses esi eax ecx edi
 	LOCAL bufAddr :DWORD
 	LOCAL bufSize :DWORD
 	mov	musicListLen, 0
@@ -138,7 +145,9 @@ L1:
 	invoke	readline, bufAddr, esi, eax 
 	.IF ecx >0
 		inc	musicListLen
-		invoke	GetMusicNameFromPath, esi 
+		mov edi, esi
+		add edi, PATH_LEN
+		invoke	GetMusicNameFromPath, esi,  edi
 	.ENDIF
 	.IF eax > 0  
 		add	esi, INFO_LEN
@@ -149,11 +158,10 @@ L1:
 	ret
 GetList ENDP
 
-GetMusicNameFromPath PROC uses eax esi edi ebx, Mpath:DWORD
-	LOCAL Mname:DWORD
+GetMusicNameFromPath PROC uses eax esi edi ebx, Mpath:DWORD, Mname:DWORD
 	mov eax, Mpath
-	add eax, PATH_LEN
-	mov Mname, eax
+	;add eax, PATH_LEN
+	;mov Mname, eax
 	mov esi, Mpath
 	mov bl, BYTE ptr[esi]
 	.IF bl == 0
@@ -190,17 +198,20 @@ GetMusicNameFromPath ENDP
 
 
 
+
 InsertColumn proc
 	LOCAL lvc:LV_COLUMN
 	mov lvc.imask,LVCF_TEXT+LVCF_WIDTH
 	mov lvc.pszText,offset Heading1
-	mov lvc.lx,150
+	mov lvc.lx,windowWidth
 	invoke SendMessage,hList, LVM_INSERTCOLUMN,0,addr lvc
+comment*	
 	or lvc.imask,LVCF_FMT
 	mov lvc.fmt,LVCFMT_RIGHT
 	mov lvc.pszText,offset Heading2
 	mov lvc.lx,100
 	invoke SendMessage,hList, LVM_INSERTCOLUMN, 1 ,addr lvc	
+*
 	ret		
 InsertColumn endp
 
@@ -303,6 +314,10 @@ L1:
 		Invoke SendMessage, hList, LVM_SETITEMSTATE,0,ADDR lvi
 
 		INVOKE szCopy, offset musicList, OFFSET szBuffer
+
+		invoke GetMusicNameFromPath, OFFSET szBuffer, OFFSET ShowStr
+		invoke SetWindowText, hMusicName, ADDR ShowStr
+
 		mov currentMusicItem,0
 	.ENDIF
 	ret
@@ -386,10 +401,14 @@ ListProc proc   hCtl	: DWORD,
          invoke TrackPopupMenu,@hMenu,TPM_LEFTALIGN,@stPos.x,@stPos.y,NULL,hList,NULL
 	.ELSEIF uMsg == WM_COMMAND
       .IF wParam == 1003
+	  L1:
 		invoke SendMessage,hCtl,LVM_GETNEXTITEM,-1,LVNI_SELECTED
         mov IndexItem, eax
-		invoke deleteItem, eax
-        ;jmp DoIt
+		.IF eax !=-1
+			invoke deleteItem, eax
+			jmp L1
+		.ENDIF
+
       .ENDIF
     .ENDIF
     jmp EndDo
@@ -578,18 +597,16 @@ CreateListWin PROC, hWnd: DWORD
 	mov ListProP, eax
 	invoke InsertColumn
 
-	RGB 255,255,255
+	RGB 0,0,0
 	invoke SendMessage,hList,LVM_SETTEXTCOLOR,0,eax
 	RGB 200,200,200
 	invoke SendMessage,hList,LVM_SETBKCOLOR,0,eax
-	RGB 0,0,0
+	RGB 200,200,200
+	invoke SendMessage,hWinMain,LVM_SETBKCOLOR,0,eax
+	RGB 200,200,200
 	invoke SendMessage,hList,LVM_SETTEXTBKCOLOR,0,eax
 
 	invoke ShowList
-
-
-
-
 
 comment*
 
@@ -613,13 +630,38 @@ deleteItem PROC uses eax ebx esi edx, ItemNum : DWORD
 	.IF eax < 0 || eax >=musicListLen
 		ret
 	.ENDIF
+
 	.IF eax == currentMusicItem
-		INVOKE MessageBox, hWinMain, ADDR Cannot_Delete, ADDR Cannot_Delete_Mes, MB_OK
-		ret
+		invoke _StopPlayMP3
+		INVOKE SetImage, hPlayButton, hPlay
+
+		invoke GetItemPath, ADDR szBuffer, 0
+		.IF currentMusicItem == 0
+			.IF musicListLen > 1
+				invoke GetItemPath, ADDR szBuffer, 1
+			.ENDIF
+		.ENDIF
+
+		mov currentMusicItem,0
+		.IF musicListLen == 1
+			mov currentMusicItem,-1
+			szText EmptyStr," "
+			invoke szCopy, ADDR EmptyStr, ADDR szBuffer
+			invoke SetWindowText, hMusicName, ADDR EmptyStr
+			jmp END_DO
+			ret
+		.ELSE
+			invoke GetMusicNameFromPath, OFFSET szBuffer, OFFSET ShowStr
+			invoke SetWindowText, hMusicName, ADDR ShowStr
+		.ENDIF
+		
+		
+	
 	.ELSEIF eax<currentMusicItem
 		dec currentMusicItem
 	.ENDIF
 
+	mov eax, ItemNum
 	mov ebx, INFO_LEN
 	mul ebx
 	add eax, OFFSET musicList
@@ -660,7 +702,7 @@ END_DO:
 	ret
 deleteItem ENDP
 
-InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
+InsertItem PROC uses eax esi ebx edi, musicPath : ptr BYTE
 	LOCAL lvi:LV_ITEM
 	;insert the list
 	mov eax, musicListLen
@@ -670,9 +712,13 @@ InsertItem PROC uses eax esi ebx, musicPath : ptr BYTE
 	mov esi,eax
 	INVOKE szCopy, musicPath, eax 
 	inc	musicListLen
-	invoke	GetMusicNameFromPath, esi
+	mov edi, esi
+	add edi, PATH_LEN
+	invoke	GetMusicNameFromPath, esi, edi
 	INVOKE szCopy, musicPath, OFFSET szBuffer
 
+	invoke GetMusicNameFromPath, OFFSET szBuffer, OFFSET ShowStr
+	invoke SetWindowText, hMusicName, ADDR ShowStr
 	
 
 	mov eax, musicListLen

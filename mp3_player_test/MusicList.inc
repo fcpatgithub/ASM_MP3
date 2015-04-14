@@ -1,4 +1,4 @@
-GetMusicNameFromPath	PROTO, math: DWORD
+GetMusicNameFromPath	PROTO, math: DWORD, Mname:DWORD
 InsertColumn			PROTO
 ShowFileInfo			PROTO, row:DWORD, lpFind:DWORD
 ShowList				PROTO

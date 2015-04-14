@@ -196,6 +196,7 @@ WinProc PROC,
 	mov eax, localMsg
 	;push ebx
 	mov ebx, wParam
+	push eax
 ;	.IF eax == WM_COMMAND
 		.IF ebx == ID_BROWSE
 			call _GetFileName
@@ -217,6 +218,7 @@ WinProc PROC,
 		.ENDIF
 ;	.ENDIF
 	;pop ebx
+	pop eax
 	.IF eax == WM_HSCROLL
 		push edx
 		mov edx, lParam
@@ -239,13 +241,14 @@ WinProc PROC,
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
 		jmp WinProcExit
 	.ELSEIF eax == WM_CREATE		; create window?
+		INVOKE CreateStatic, hWnd, hInstance					; Static
 		INVOKE CreateListWin, hWnd								; Playlist
 		INVOKE CreateTrackBar, hWnd, hInstance					; Time bar
 		INVOKE CreateVolumeBar, hWnd, hInstance					; Volume bar
 		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; Next track
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 0			; Previous track
-		INVOKE CreateStatic, hWnd, hInstance					; Static
+
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
 	  INVOKE PostQuitMessage,0

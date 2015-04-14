@@ -14,6 +14,7 @@ include		masm32rt.inc
 include		Control.inc
 include		Track.inc
 include		Image.inc
+include		MusicList.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
@@ -51,6 +52,7 @@ barName			BYTE "msctls_trackbar32",0
 barclassName	BYTE "msctls_trackbar32",0
 EditClass	BYTE "Static", 0
 EmptyStr	BYTE " ", 0
+ShowStr			BYTE 100 dup (?)
 
 
 .code
@@ -232,10 +234,12 @@ CreateStatic PROC,
 	invoke SetWindowText, htotalTime, ADDR EmptyStr
 
 	invoke CreateWindowEx,NULL,ADDR EditClass,ADDR EditClass,
-                   WS_VISIBLE or WS_CHILD,150,0,50,20,hWnd,STATIC3_ID,
+                   WS_VISIBLE or WS_CHILD or SS_CENTER,0,0,windowWidth,20,hWnd,STATIC3_ID,
                    hIns,NULL
+
 	mov hMusicName, eax
 	invoke SetWindowText, hMusicName, ADDR EmptyStr
+	
 
 	ret
 CreateStatic ENDP
