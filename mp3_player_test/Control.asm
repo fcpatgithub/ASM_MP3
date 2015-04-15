@@ -148,7 +148,6 @@ CreateVolumeBar PROC,
 	mov mxcd.cChannels, 1
 	mov mxcd.cMultipleItems, 0
 	mov mxcd.cbDetails, SIZEOF MIXERCONTROLDETAILS_SIGNED
-	mov volume, 65535
 	lea eax, volume
 	mov mxcd.paDetails, eax
 	INVOKE mixerGetControlDetails, hMixer, ADDR mxcd, \
