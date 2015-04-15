@@ -654,7 +654,7 @@ CreateListWin PROC, hWnd: DWORD
 	
 
 	invoke CreateWindowEx, NULL, addr ListViewClassName, NULL, \
-			LVS_LIST+WS_CHILD+WS_VISIBLE+LVS_SHOWSELALWAYS, 0, 170, 500, 430, hWnd, NULL, hInstance, NULL
+			LVS_LIST+WS_CHILD+WS_VISIBLE+LVS_SHOWSELALWAYS, 0, 110, 500, 430, hWnd, NULL, hInstance, NULL
 
 
 	mov hList, eax
@@ -670,7 +670,7 @@ CreateListWin PROC, hWnd: DWORD
 	invoke SendMessage,hWinMain,LVM_SETBKCOLOR,0,eax
 	RGB 200,200,200
 	invoke SendMessage,hList,LVM_SETTEXTBKCOLOR,0,eax
-
+	invoke SetFocus, hList
 	invoke ShowList
 
 comment*

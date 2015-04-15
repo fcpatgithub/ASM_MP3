@@ -19,4 +19,4 @@ STATIC2_ID		EQU -2
 STATIC3_ID		EQU -3
 
 windowWidth		EQU 360
-windowHeight	EQU 650
+windowHeight	EQU 450

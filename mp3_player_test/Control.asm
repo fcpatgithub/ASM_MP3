@@ -74,7 +74,7 @@ CreatePlayButton PROC,
 		windowWidth / 2 - 25, 50, 50, 50, hWnd, playBtn_ID, hIns, NULL
 	mov hPlayButton, eax
 	INVOKE SetImage, hPlayButton, hPlay	
-	INVOKE CreateEllipticRgn, 0, 0, 50, 50
+	INVOKE CreateEllipticRgn, 5, 5, 45, 45
 	INVOKE SetWindowRgn, hPlayButton, eax, TRUE
 	ret
 
@@ -86,10 +86,10 @@ CreateModeButton PROC,
 	hWnd: DWORD, hIns: DWORD
 	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
 		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
-		0, 100, 50, 50, hWnd, modeBtn_ID, hIns, NULL
+		265, 55, 50, 50, hWnd, modeBtn_ID, hIns, NULL
 	mov hModeButton, eax
 	INVOKE SetImage, hModeButton, h1Single
-	INVOKE CreateEllipticRgn, 0, 0, 50, 50
+	INVOKE CreateEllipticRgn, 5, 5, 45, 45
 	INVOKE SetWindowRgn, hModeButton, eax, TRUE
 	ret
 
@@ -115,7 +115,8 @@ CreateVolumeBar PROC,
 	LOCAL mxlc:			MIXERLINECONTROLS
 
 	INVOKE CreateWindowEx, NULL, ADDR barclassName,
-		ADDR barName,WS_CHILD+WS_VISIBLE, windowWidth / 2 - 50, 120, 100, 20, hWnd, Bar_ID, hIns, NULL
+		ADDR barName,WS_CHILD+WS_VISIBLE, 0, 70, 100, 20, hWnd, Bar_ID, hIns, NULL
+		;ADDR barName,WS_CHILD+WS_VISIBLE, windowWidth / 2 - 50, 120, 100, 20, hWnd, Bar_ID, hIns, NULL
 	mov hVolumeBar, eax
 	INVOKE SendMessage, hVolumeBar, TBM_SETPAGESIZE, 0, 1
 	
@@ -147,8 +148,8 @@ CreateVolumeBar PROC,
 	INVOKE mixerGetControlDetails, hMixer, ADDR mxcd, \
 			MIXER_OBJECTF_HMIXER or MIXER_GETCONTROLDETAILSF_VALUE
 
-	INVOKE SendMessage, hVolumeBar, TBM_SETPOS, 1, 100
-	INVOKE VolumeAdjust, 100
+	INVOKE SendMessage, hVolumeBar, TBM_SETPOS, 1, 50
+	INVOKE VolumeAdjust, 50
 
 	ret
 
@@ -214,7 +215,7 @@ CreatePlaybackButton PROC,
 		btnX, 60, 30, 30, hWnd, btnID, hIns, NULL
 	mov btnHandle, eax
 	INVOKE SetImage, btnHandle, imageHandle
-	INVOKE CreateEllipticRgn, 0, 0, 30, 30
+	INVOKE CreateEllipticRgn, 5, 5, 27, 27
 	INVOKE SetWindowRgn, btnHandle, eax, TRUE
 	.IF mode == 1
 		push ebx

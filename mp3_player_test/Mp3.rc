@@ -42,7 +42,7 @@ FirstMenu MENU
 { 
  POPUP "&Files" 
         { 
-         MENUITEM "&Browse",ID_BROWSE
+         MENUITEM "&Add Music",ID_BROWSE
 		 MENUITEM SEPARATOR 	
 		 MENUITEM "&Open List",ID_OPEN_LIST
 		 MENUITEM "&New List",ID_NEW_LIST

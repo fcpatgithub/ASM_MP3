@@ -147,8 +147,7 @@ extrn ListName :BYTE
 
 .const
 IDM_EXIT		EQU 203
-windowWidth		EQU 360
-windowHeight	EQU 650
+
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;	
@@ -227,6 +226,8 @@ WinProc PROC,
 			INVOKE PreviousMusic
 		.ELSEIF bx == modeBtn_ID
 			INVOKE ChangePlayMode
+		.ELSEIF bx == IDM_EXIT
+			INVOKE ExitProcess,0
 		.ENDIF
 	
 ;	.ENDIF

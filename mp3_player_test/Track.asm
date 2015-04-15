@@ -46,6 +46,9 @@ extrn  ListName			: DWORD
 extrn hMusicName		: DWORD
 extrn hList				: DWORD
 extrn currentMusicItem	: DWORD
+extrn htotalTime		: DWORD
+extrn hcurrentTime		: DWORD
+
 szCaption	BYTE	"Error...",0
 szError		BYTE	"Error to play MP3 file!",0
 szPlay		BYTE	"&Play",0
@@ -275,6 +278,10 @@ _StopPlayMP3	proc
 		invoke	mciSendCommand,hDevice,MCI_CLOSE,MCI_NOTIFY,addr @stMCIStop
 		invoke	SetDlgItemText,hWinMain,IDOK,offset szPlay
 		mov	dwFlag, 0
+
+		szText EmptyStr," "
+		invoke SetWindowText, htotalTime, ADDR EmptyStr
+		invoke SetWindowText, hcurrentTime, ADDR EmptyStr
 		ret
 
 _StopPlayMP3	endp
