@@ -282,6 +282,7 @@ _StopPlayMP3	proc
 		szText EmptyStr," "
 		invoke SetWindowText, htotalTime, ADDR EmptyStr
 		invoke SetWindowText, hcurrentTime, ADDR EmptyStr
+		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, 0
 		ret
 
 _StopPlayMP3	endp
@@ -367,13 +368,15 @@ _AutochangePosition		proc
 		.ELSE
 			mov overFlag, 0
 		.ENDIF
+		
 
 		mov edx, 0
 		imul eax, 100
 		div ecx
 		
-
-		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, eax
+		.IF overFlag ==0
+			INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, eax
+		.ENDIF
 		mov Pos, eax
 
 		pop edx

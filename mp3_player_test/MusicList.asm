@@ -86,6 +86,14 @@ DecideNextMusic PROC uses eax ebx
 	
 
 	.IF PlayMode == 1
+		.IF musicListLen == 0
+			ret
+		.ENDIF
+		INVOKE GetItemPath, OFFSET szBuffer, currentMusicItem
+		INVOKE _StopPlayMP3
+		INVOKE PlayMP3, OFFSET szBuffer
+		INVOKE _StopPlayMP3
+		INVOKE SetImage, hPlayButton, hPlay
 	.ELSEIF PlayMode == 2
 		.IF musicListLen == 0
 			ret
