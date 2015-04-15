@@ -38,6 +38,8 @@ ListName			db PATH_LEN dup (0)
 Delete	            db "Delete",0
 ShowStr				BYTE 100 dup (?)
 DTime				BYTE 100 dup (?)
+img					BYTE "C:\Users\fcp\Documents\GitHub\ASM_MP3\mp3_player_test\resource\image\bg.bmp", 0
+hBg					DWORD ?
 
 className   BYTE "ASMWin",0
 
@@ -651,7 +653,7 @@ CreateNewListWnd ENDP
 
 
 CreateListWin PROC, hWnd: DWORD
-	
+	LOCAL lvbk: LVBKIMAGE
 
 	invoke CreateWindowEx, NULL, addr ListViewClassName, NULL, \
 
@@ -672,6 +674,19 @@ CreateListWin PROC, hWnd: DWORD
 	invoke SendMessage,hWinMain,LVM_SETBKCOLOR,0,eax
 	RGB 200,200,200
 	invoke SendMessage,hList,LVM_SETTEXTBKCOLOR,0,eax
+
+	mov lvbk.ulFlags, LVBKIF_SOURCE_URL or LVBKIF_STYLE_TILE
+	mov eax, hBg
+	mov lvbk.hbm, eax
+	mov lvbk.pszImage, OFFSET img
+	mov lvbk.cchImageMax, SIZEOF img
+	mov lvbk.xOffsetPercent, 100
+	mov lvbk.yOffsetPercent, 100
+	invoke CoInitialize, NULL
+	invoke SendMessage,hList,LVM_SETBKIMAGE,0,addr lvbk
+	invoke GetLastError
+	invoke CoUninitialize
+
 	invoke SetFocus, hList
 	invoke ShowList
 

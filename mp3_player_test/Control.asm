@@ -125,6 +125,11 @@ CreateVolumeBar PROC,
 	mov mxl.dwComponentType, MIXERLINE_COMPONENTTYPE_DST_SPEAKERS
 	INVOKE mixerGetLineInfo, hMixer, ADDR mxl, \
 			MIXER_OBJECTF_HMIXER or MIXER_GETLINEINFOF_COMPONENTTYPE
+	.IF eax == 1024
+		mov mxl.dwComponentType, MIXERLINE_COMPONENTTYPE_DST_HEADPHONES
+		INVOKE mixerGetLineInfo, hMixer, ADDR mxl, \
+			MIXER_OBJECTF_HMIXER or MIXER_GETLINEINFOF_COMPONENTTYPE
+	.ENDIF
 	mov mxlc.cbStruct, SIZEOF MIXERLINECONTROLS
 	mov eax, mxl.dwLineID
 	mov mxlc.dwLineID, eax
