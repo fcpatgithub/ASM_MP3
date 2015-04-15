@@ -163,7 +163,7 @@ _GetFileName	proc
 _GetFileName	endp
 
 ;********************************************************************
-_getTotalTiem	proc 
+_GetTotalTime	proc 
 	local	@stMCIStatus:MCI_STATUS_PARMS
 	mov eax, MCI_STATUS_LENGTH
 	mov  @stMCIStatus.dwItem, eax
@@ -173,7 +173,7 @@ _getTotalTiem	proc
 	mov eax, @stMCIStatus.dwReturn
 	mov totalTime, eax
 	ret
-_getTotalTiem	endp
+_GetTotalTime	endp
 
 ;********************************************************************
 
@@ -224,7 +224,7 @@ PlayMP3	proc musicPath : ptr BYTE
 			mov	eax,hWinMain
 			mov	@stMCIPlay.dwCallback,eax
 
-			invoke _getTotalTiem
+			invoke _GetTotalTime
 			invoke getTimeString, totalTime
 			invoke SetWindowText, htotalTime, ADDR str_time
 

@@ -36,9 +36,6 @@
   <ItemGroup>
     <ResourceCompile Include="Mp3.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="resource.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5615CB56-443D-4C59-B1A0-70D00A06FED7}</ProjectGuid>
     <RootNamespace>mp3_player_test</RootNamespace>

@@ -18,8 +18,8 @@
 #define IDB_2REPEAT 255
 #define IDB_3CYCLE 256
 #define IDB_4RANDOM 257
-IDB_PLAY BITMAP "resource/image/play.bmp"
-IDB_PAUSE BITMAP "resource/image/pause.bmp"
+IDB_PLAY BITMAP "resource/image/play2.bmp"
+IDB_PAUSE BITMAP "resource/image/pause2.bmp"
 IDB_NEXT BITMAP "resource/image/next.bmp"
 IDB_PREVIOUS BITMAP "resource/image/previous.bmp"
 IDB_1SINGLE BITMAP "resource/image/_1single.bmp"
@@ -47,6 +47,6 @@ FirstMenu MENU
 		 MENUITEM "&Open List",ID_OPEN_LIST
 		 MENUITEM "&New List",ID_NEW_LIST
          MENUITEM SEPARATOR 
-         MENUITEM "&Exit",IDM_EXIT 
+         MENUITEM "E&xit",IDM_EXIT 
         } 
 } 

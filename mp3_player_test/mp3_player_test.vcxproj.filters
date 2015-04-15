@@ -55,9 +55,4 @@
       <Filter>資源檔</Filter>
     </ResourceCompile>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="resource.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-  </ItemGroup>
 </Project>

@@ -242,7 +242,6 @@ PlaybackButtonClicked ENDP
 ;********************************************************************
 CreateStatic PROC,
 	hWnd: DWORD, hIns: DWORD
-
 	invoke CreateWindowEx,NULL,ADDR EditClass,ADDR EditClass,
                    WS_VISIBLE or WS_CHILD,20,20,50,20,hWnd,STATIC1_ID,
                    hIns,NULL

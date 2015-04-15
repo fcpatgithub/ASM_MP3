@@ -1,9 +1,0 @@
-diff a/mp3_player_test/Mp3.asm b/mp3_player_test/Mp3.asm	(rejected hunks)
-@@ -13,7 +13,6 @@
- include		masm32rt.inc
- 
- 
--
- includelib	user32.lib
- includelib	kernel32.lib
- includelib	comctl32.lib

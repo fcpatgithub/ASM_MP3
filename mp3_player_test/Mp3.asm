@@ -110,6 +110,9 @@ mixer_id			DWORD ?
 currentMusicItem	DWORD ?
 xCtr				DWORD ?
 yCtr				DWORD ?
+hDC					DWORD ?
+hMDC				DWORD ?
+hOld				DWORD ?
 
 .data
 PlayMode	DWORD 1
@@ -196,7 +199,7 @@ _ProcDlgMain	endp
 ;-----------------------------------------------------
 WinProc PROC,
 	hWnd:DWORD, localMsg:DWORD, wParam:DWORD, lParam:DWORD
-
+	LOCAL ps    :PAINTSTRUCT
 ; The application's message handler, which handles
 ; application-specific messages. All other messages
 ; are forwarded to the default Windows message
@@ -342,10 +345,6 @@ start:
 
 ; Create the application's main window.
 ; Returns a handle to the main window in EAX.
-;		INVOKE CreateWindowEx, 0, ADDR className,
-;		  ADDR WindowName,WS_VISIBLE+WS_DLGFRAME+WS_CAPTION+WS_BORDER+WS_SYSMENU+WS_MAXIMIZEBOX+WS_MINIMIZEBOX+WS_THICKFRAME,
-;		  CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
-;		  CW_USEDEFAULT,NULL,NULL,hInstance,NULL
 		INVOKE GetSystemMetrics, SM_CXSCREEN
 		mov ebx, 2
 		xor edx, edx
