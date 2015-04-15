@@ -12,3 +12,4 @@ ID_BROWSE		equ		1001
 ID_FILE			equ		1002
 ID_OPEN_LIST	equ		1004
 ID_NEW_LIST		equ		1005
+MCI_OVER		equ     1234

@@ -23,7 +23,11 @@ includelib	winmm.lib
 extern hPlay		: DWORD
 extern hPause		: DWORD
 extern hNext		: DWORD
-extern hPrevious		: DWORD
+extern hPrevious	: DWORD
+extern h1Single		: DWORD
+extern h2Repeat		: DWORD
+extern h3Cycle		: DWORD
+extern h4Random		: DWORD
 
 .code
 
@@ -39,6 +43,14 @@ LoadImages PROC,
 	mov hNext, eax
 	INVOKE LoadImage, hIns, IDB_PREVIOUS, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
 	mov hPrevious, eax
+	INVOKE LoadImage, hIns, IDB_1SINGLE, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+	mov h1Single, eax
+	INVOKE LoadImage, hIns, IDB_2REPEAT, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+	mov h2Repeat, eax
+	INVOKE LoadImage, hIns, IDB_3CYCLE, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+	mov h3Cycle, eax
+	INVOKE LoadImage, hIns, IDB_4RANDOM, IMAGE_BITMAP, 50, 50, LR_DEFAULTCOLOR
+	mov h4Random, eax
 	ret
 LoadImages ENDP
 ;********************************************************************

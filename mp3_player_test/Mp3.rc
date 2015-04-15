@@ -14,10 +14,18 @@
 #define IDB_PAUSE 251
 #define IDB_NEXT 252
 #define IDB_PREVIOUS 253
+#define IDB_1SINGLE 254
+#define IDB_2REPEAT 255
+#define IDB_3CYCLE 256
+#define IDB_4RANDOM 257
 IDB_PLAY BITMAP "resource/image/play.bmp"
 IDB_PAUSE BITMAP "resource/image/pause.bmp"
 IDB_NEXT BITMAP "resource/image/next.bmp"
 IDB_PREVIOUS BITMAP "resource/image/previous.bmp"
+IDB_1SINGLE BITMAP "resource/image/_1single.bmp"
+IDB_2REPEAT BITMAP "resource/image/_2repeat.bmp"
+IDB_3CYCLE BITMAP "resource/image/_3cycle.bmp"
+IDB_4RANDOM BITMAP "resource/image/_4random.bmp"
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 1		ICON		"Main.ico"

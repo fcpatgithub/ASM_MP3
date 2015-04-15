@@ -44,6 +44,8 @@ extern mxcd				: MIXERCONTROLDETAILS
 extern hMixer			: DWORD
 extrn  ListName			: DWORD
 extrn hMusicName		: DWORD
+extrn hList				: DWORD
+extrn currentMusicItem	: DWORD
 szCaption	BYTE	"Error...",0
 szError		BYTE	"Error to play MP3 file!",0
 szPlay		BYTE	"&Play",0
@@ -55,6 +57,7 @@ szFilter	BYTE	'MP3 Files(*.mp3)',0,'*.mp3',0,'All Files(*.*)',0,'*.*',0,0
 filterList	BYTE	'LIST Files(*.list)',0,'*.list',0,0
 str_time    BYTE    256 dup(?)
 ShowStr     BYTE    100 dup (?)
+overFlag	BYTE    0
 .code
 
 ;********************************************************************
@@ -203,7 +206,7 @@ _getTotalTiem	endp
 
 ;********************************************************************
 PlayMP3	proc musicPath : ptr BYTE
-		
+		LOCAL lvi:LV_ITEM
 		local	@stMCIPlay:MCI_GENERIC_PARMS
 		local	@stMCIOpen:MCI_OPEN_PARMS
 
@@ -235,6 +238,12 @@ PlayMP3	proc musicPath : ptr BYTE
 			invoke GetMusicNameFromPath, OFFSET szBuffer, OFFSET ShowStr
 			invoke SetWindowText, hMusicName, ADDR ShowStr
 			
+			mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
+			mov lvi.state,  0
+			Invoke SendMessage, hList, LVM_SETITEMSTATE,-1,ADDR lvi
+			mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
+			mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
+			Invoke SendMessage, hList, LVM_SETITEMSTATE,currentMusicItem,ADDR lvi
 			mov	dwFlag, 1
 		.else
 			invoke	MessageBox,hWinMain,addr szError,addr szCaption,MB_OK
@@ -283,7 +292,7 @@ _SeekMP3	proc
 			mov  @stMCIStatus.dwItem, eax
 			mov	eax,hWinMain
 			mov	@stMCIStatus.dwCallback,eax
-			invoke	mciSendCommand,hDevice,MCI_STATUS,MCI_STATUS_ITEM,addr @stMCIStatus
+			invoke	mciSendCommand,hDevice,MCI_STATUS,MCI_STATUS_ITEM+MCI_NOTIFY,addr @stMCIStatus
 			push ecx
 			mov eax, @stMCIStatus.dwReturn
 			imul Pos
@@ -293,7 +302,7 @@ _SeekMP3	proc
 			mov @stMCISeek.dwTo, eax
 			mov	eax,hWinMain
 			mov	@stMCISeek.dwCallback,eax
-			invoke	mciSendCommand,hDevice,MCI_SEEK,MCI_TO+MCI_WAIT,addr @stMCISeek
+			invoke	mciSendCommand,hDevice,MCI_SEEK,MCI_TO+MCI_WAIT+MCI_NOTIFY,addr @stMCISeek
 			invoke	mciSendCommand,hDevice,MCI_PLAY,MCI_NOTIFY,addr @stMCIPlay
 		.endif
 			
@@ -338,9 +347,24 @@ _AutochangePosition		proc
 		pop eax
 
 		pop ecx
+
+		.IF ecx == eax
+			.IF overFlag == 0
+				push ecx
+				push eax
+				INVOKE SendMessage, hWinMain, MCI_OVER , 1, eax
+				inc overFlag
+				pop eax
+				pop ecx
+			.ENDIF
+		.ELSE
+			mov overFlag, 0
+		.ENDIF
+
 		mov edx, 0
 		imul eax, 100
 		div ecx
+		
 
 		INVOKE SendMessage, hWinBar, TBM_SETPOS, 1, eax
 		mov Pos, eax

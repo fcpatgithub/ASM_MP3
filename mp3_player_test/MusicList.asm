@@ -16,12 +16,14 @@ include		MusicList.inc
 include		Track.inc
 include     Control.inc
 include		Image.inc
+include     DateTime.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
 includelib	comctl32.lib
 includelib	comdlg32.lib
 includelib	winmm.lib
+includelib  datetime.lib
 
 .data
 
@@ -35,7 +37,7 @@ Heading2			db "Size",0
 ListName			db PATH_LEN dup (0)
 Delete	            db "Delete",0
 ShowStr				BYTE 100 dup (?)
-
+DTime				BYTE 100 dup (?)
 
 className   BYTE "ASMWin",0
 
@@ -53,7 +55,50 @@ extrn hInstance     : DWORD
 extrn hPause		: DWORD
 extrn hPlayButton	: DWORD
 extrn hPlay			: DWORD
+extrn h1Single		: DWORD
+extrn h2Repeat		: DWORD 
+extrn h3Cycle		: DWORD
+extrn h4Random		: DWORD 
+extrn hModeButton	: DWORD
+extrn PlayMode		: DWORD
 .code
+
+ChangePlayMode PROC
+	.IF PlayMode == 1
+		inc PlayMode
+		INVOKE SetImage, hModeButton, h2Repeat
+	.ELSEIF PlayMode == 2
+		inc PlayMode
+		INVOKE SetImage, hModeButton, h3Cycle
+	.ELSEIF PlayMode == 3
+		inc PlayMode
+		INVOKE SetImage, hModeButton, h4Random
+	.ELSEIF PlayMode == 4
+		mov PlayMode, 1
+		INVOKE SetImage, hModeButton, h1Single
+	.ENDIF	 
+	ret
+ChangePlayMode ENDP
+
+DecideNextMusic PROC uses eax ebx
+	
+
+	.IF PlayMode == 1
+	.ELSEIF PlayMode == 2
+		.IF musicListLen == 0
+			ret
+		.ENDIF
+		INVOKE GetItemPath, OFFSET szBuffer, currentMusicItem
+		INVOKE _StopPlayMP3
+		INVOKE PlayMP3, OFFSET szBuffer
+	.ELSEIF PlayMode == 3
+		INVOKE NextMusic
+	.ELSEIF PlayMode == 4
+		INVOKE NextMusic
+	.ENDIF	 
+	ret
+DecideNextMusic ENDP
+
 
 GetItemPath PROC uses eax ebx, Path:DWORD, ItemNum:DWORD
 	mov eax, ItemNum
@@ -71,14 +116,30 @@ NextMusic PROC uses eax ebx
 	.IF musicListLen == 0
 		ret
 	.ENDIF
-	inc currentMusicItem
-	mov eax, currentMusicItem
-	.IF eax == musicListLen
-		mov currentMusicItem, 0 
+	.IF PlayMode != 4
+		inc currentMusicItem
+		mov eax, currentMusicItem
+		.IF eax == musicListLen
+			mov currentMusicItem, 0 
+		.ENDIF
+		INVOKE GetItemPath, OFFSET szBuffer, currentMusicItem
+		INVOKE _StopPlayMP3
+		INVOKE PlayMP3, OFFSET szBuffer
+	.ELSE
+		INVOKE GetLocalDateTime, ADDR DTime
+			INVOKE Second, ADDR DTime
+			mov ebx, eax
+			add ebx,currentMusicItem
+	L1:
+			.IF ebx > musicListLen
+				sub ebx, musicListLen
+				jmp L1
+			.ENDIF
+			mov currentMusicItem, ebx
+			INVOKE GetItemPath, OFFSET szBuffer, currentMusicItem
+			INVOKE _StopPlayMP3
+			INVOKE PlayMP3, OFFSET szBuffer
 	.ENDIF
-	INVOKE GetItemPath, OFFSET szBuffer, currentMusicItem
-	INVOKE _StopPlayMP3
-	INVOKE PlayMP3, OFFSET szBuffer
 	ret
 NextMusic ENDP
 
@@ -376,7 +437,6 @@ ListProc proc   hCtl	: DWORD,
                 uMsg	: DWORD,
                 wParam	: DWORD,
                 lParam	: DWORD
-
     LOCAL IndexItem  :DWORD
     LOCAL Buffer[32] :BYTE
 	LOCAL lvi:LV_ITEM
@@ -408,7 +468,12 @@ ListProc proc   hCtl	: DWORD,
 			invoke deleteItem, eax
 			jmp L1
 		.ENDIF
-
+			
+		.IF currentMusicItem>=0
+			mov lvi.stateMask, LVIS_SELECTED+LVIS_FOCUSED
+			mov lvi.state,  LVIS_SELECTED+LVIS_FOCUSED
+			Invoke SendMessage, hList, LVM_SETITEMSTATE,currentMusicItem,ADDR lvi
+		.ENDIF
       .ENDIF
     .ENDIF
     jmp EndDo
@@ -634,15 +699,17 @@ deleteItem PROC uses eax ebx esi edx, ItemNum : DWORD
 	.IF eax == currentMusicItem
 		invoke _StopPlayMP3
 		INVOKE SetImage, hPlayButton, hPlay
-
+		comment*
 		invoke GetItemPath, ADDR szBuffer, 0
 		.IF currentMusicItem == 0
 			.IF musicListLen > 1
 				invoke GetItemPath, ADDR szBuffer, 1
 			.ENDIF
 		.ENDIF
-
-		mov currentMusicItem,0
+		*
+		;mov currentMusicItem,0
+		mov ebx, musicListLen
+		dec ebx
 		.IF musicListLen == 1
 			mov currentMusicItem,-1
 			szText EmptyStr," "
@@ -651,6 +718,15 @@ deleteItem PROC uses eax ebx esi edx, ItemNum : DWORD
 			jmp END_DO
 			ret
 		.ELSE
+			.IF ebx == currentMusicItem
+				dec currentMusicItem
+				mov ebx, currentMusicItem
+			.ELSE
+				mov ebx, currentMusicItem
+				inc ebx
+			.ENDIF
+			
+			invoke GetItemPath, ADDR szBuffer, ebx
 			invoke GetMusicNameFromPath, OFFSET szBuffer, OFFSET ShowStr
 			invoke SetWindowText, hMusicName, ADDR ShowStr
 		.ENDIF

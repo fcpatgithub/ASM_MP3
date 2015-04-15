@@ -29,6 +29,7 @@ extern volumePos		: DWORD
 extern hPlayButton		: DWORD
 extern hNextButton		: DWORD
 extern hPreviousButton  : DWORD
+extern hModeButton		: DWORD
 extern hWinBar			: DWORD
 extern hWinMain			: DWORD
 extern htotalTime		: DWORD
@@ -45,6 +46,10 @@ extern szBuffer			: BYTE
 extern volume			: MIXERCONTROLDETAILS_SIGNED
 extern mxcd				: MIXERCONTROLDETAILS
 extern mixer_id			: DWORD
+extrn  h1Single			: DWORD
+extrn  h2Repeat			: DWORD 
+extrn  h3Cycle			: DWORD
+extrn  h4Random			: DWORD 
 
 ButtonClassName BYTE "button", 0
 ButtonText		BYTE " ", 0
@@ -75,6 +80,22 @@ CreatePlayButton PROC,
 
 CreatePlayButton ENDP
 ;********************************************************************
+
+
+CreateModeButton PROC,
+	hWnd: DWORD, hIns: DWORD
+	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
+		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
+		0, 100, 50, 50, hWnd, modeBtn_ID, hIns, NULL
+	mov hModeButton, eax
+	INVOKE SetImage, hModeButton, h1Single
+	INVOKE CreateEllipticRgn, 0, 0, 50, 50
+	INVOKE SetWindowRgn, hModeButton, eax, TRUE
+	ret
+
+CreateModeButton ENDP
+;********************************************************************
+
 CreateTrackBar PROC,
 	hWnd: DWORD, hIns: DWORD
 
