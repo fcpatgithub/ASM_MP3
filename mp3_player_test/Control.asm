@@ -14,6 +14,7 @@ include		masm32rt.inc
 include		Control.inc
 include		Track.inc
 include		Image.inc
+include		MusicList.inc
 
 includelib	user32.lib
 includelib	kernel32.lib
@@ -28,6 +29,7 @@ extern volumePos		: DWORD
 extern hPlayButton		: DWORD
 extern hNextButton		: DWORD
 extern hPreviousButton  : DWORD
+extern hModeButton		: DWORD
 extern hWinBar			: DWORD
 extern hWinMain			: DWORD
 extern htotalTime		: DWORD
@@ -44,6 +46,10 @@ extern szBuffer			: BYTE
 extern volume			: MIXERCONTROLDETAILS_SIGNED
 extern mxcd				: MIXERCONTROLDETAILS
 extern mixer_id			: DWORD
+extrn  h1Single			: DWORD
+extrn  h2Repeat			: DWORD 
+extrn  h3Cycle			: DWORD
+extrn  h4Random			: DWORD 
 
 ButtonClassName BYTE "button", 0
 ButtonText		BYTE " ", 0
@@ -51,6 +57,7 @@ barName			BYTE "msctls_trackbar32",0
 barclassName	BYTE "msctls_trackbar32",0
 EditClass	BYTE "Static", 0
 EmptyStr	BYTE " ", 0
+ShowStr			BYTE 100 dup (?)
 
 
 .code
@@ -73,6 +80,22 @@ CreatePlayButton PROC,
 
 CreatePlayButton ENDP
 ;********************************************************************
+
+
+CreateModeButton PROC,
+	hWnd: DWORD, hIns: DWORD
+	INVOKE CreateWindowEx, NULL, ADDR ButtonClassName,
+		ADDR ButtonText, WS_CHILD or WS_VISIBLE or WS_CLIPCHILDREN or BS_BITMAP,
+		0, 100, 50, 50, hWnd, modeBtn_ID, hIns, NULL
+	mov hModeButton, eax
+	INVOKE SetImage, hModeButton, h1Single
+	INVOKE CreateEllipticRgn, 0, 0, 50, 50
+	INVOKE SetWindowRgn, hModeButton, eax, TRUE
+	ret
+
+CreateModeButton ENDP
+;********************************************************************
+
 CreateTrackBar PROC,
 	hWnd: DWORD, hIns: DWORD
 
@@ -231,10 +254,12 @@ CreateStatic PROC,
 	invoke SetWindowText, htotalTime, ADDR EmptyStr
 
 	invoke CreateWindowEx,NULL,ADDR EditClass,ADDR EditClass,
-                   WS_VISIBLE or WS_CHILD,150,0,50,20,hWnd,STATIC3_ID,
+                   WS_VISIBLE or WS_CHILD or SS_CENTER,0,0,windowWidth,20,hWnd,STATIC3_ID,
                    hIns,NULL
+
 	mov hMusicName, eax
 	invoke SetWindowText, hMusicName, ADDR EmptyStr
+	
 
 	ret
 CreateStatic ENDP

@@ -12,6 +12,8 @@ include     msgstruct.inc
 include     Gdi32.inc
 include		masm32rt.inc
 
+
+
 includelib	user32.lib
 includelib	kernel32.lib
 includelib	comctl32.lib
@@ -64,6 +66,12 @@ public currentTime
 public htotalTime
 public hcurrentTime
 public hMusicName
+public h1Single
+public h2Repeat
+public h3Cycle
+public h4Random
+public hModeButton
+public PlayMode
 
 
 dwFlag				DWORD	?
@@ -81,6 +89,7 @@ htotalTime			DWORD ?
 hcurrentTime		DWORD ?
 hPlayButton			DWORD ?
 hNextButton			DWORD ?
+hModeButton			DWORD ?
 hPreviousButton		DWORD ?
 hWinBar				DWORD ?
 hVolumeBar			DWORD ?
@@ -89,6 +98,10 @@ hPlay				DWORD ?
 hPause				DWORD ?
 hNext				DWORD ?
 hPrevious			DWORD ?
+h1Single			DWORD ?
+h2Repeat			DWORD ?
+h3Cycle				DWORD ?
+h4Random			DWORD ?
 hList				dd  ?
 hMixer				DWORD ?
 volume				MIXERCONTROLDETAILS_SIGNED <?>
@@ -102,7 +115,7 @@ hMDC				DWORD ?
 hOld				DWORD ?
 
 .data
-
+PlayMode	DWORD 1
 DebugText	BYTE "Debug", 0
 
 ErrorTitle  BYTE "Error",0
@@ -197,25 +210,34 @@ WinProc PROC,
 	mov eax, localMsg
 	;push ebx
 	mov ebx, wParam
+	push eax
+	
 ;	.IF eax == WM_COMMAND
 		.IF ebx == ID_BROWSE
 			call _GetFileName
 		.ELSEIF ebx == ID_OPEN_LIST
 			call GetListFileName
+			invoke ShowList
+		.ELSEIF ebx == ID_NEW_LIST
+			invoke CreateNewListWnd
 		.ELSEIF bx == playBtn_ID
 			INVOKE SwitchTrackState
 		.ELSEIF bx == nextBtn_ID
 			INVOKE PlaybackButtonClicked, 1
 			INVOKE NextMusic
-;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
 		.ELSEIF bx == previousBtn_ID
 			INVOKE PlaybackButtonClicked, 0
 			INVOKE PreviousMusic
-;			INVOKE MessageBox, hWnd, ADDR DebugText, ADDR DebugText, MB_OK
+		.ELSEIF bx == modeBtn_ID
+			INVOKE ChangePlayMode
 		.ENDIF
+	
 ;	.ENDIF
 	;pop ebx
-	.IF eax == WM_HSCROLL
+	pop eax
+	.IF eax ==MCI_OVER
+		INVOKE DecideNextMusic
+	.ELSEIF eax == WM_HSCROLL
 		push edx
 		mov edx, lParam
 		.IF (edx == hWinBar)
@@ -237,13 +259,15 @@ WinProc PROC,
 	.ELSEIF eax == WM_KEYDOWN       ; keyboard button?
 		jmp WinProcExit
 	.ELSEIF eax == WM_CREATE		; create window?
-		INVOKE CreateListWin, hWnd, hInstance					; Playlist
+		INVOKE CreateStatic, hWnd, hInstance					; Static
+		INVOKE CreateListWin, hWnd								; Playlist
 		INVOKE CreateTrackBar, hWnd, hInstance					; Time bar
 		INVOKE CreateVolumeBar, hWnd, hInstance					; Volume bar
 		INVOKE CreatePlayButton, hWnd, hInstance				; Play / pause button
+		INVOKE CreateModeButton, hWnd, hInstance
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 1			; Next track
 		INVOKE CreatePlaybackButton, hWnd, hInstance, 0			; Previous track
-		INVOKE CreateStatic, hWnd, hInstance					; Static
+
 	  jmp WinProcExit
 	.ELSEIF eax == WM_CLOSE		; close window?
 	  INVOKE PostQuitMessage,0

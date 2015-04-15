@@ -7,7 +7,9 @@ PlaybackButtonClicked	PROTO, mode: BYTE
 SwitchTrackState		PROTO
 BarAdjust				PROTO
 VolumeBarAdjust			PROTO
+CreateModeButton		PROTO,	hWnd: DWORD, hIns: DWORD
 
+modeBtn_ID      EQU 403
 playBtn_ID		EQU 400
 nextBtn_ID		EQU	401
 previousBtn_ID	EQU 402
