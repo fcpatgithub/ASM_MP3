@@ -434,7 +434,8 @@ CreateListWin PROC, hWnd: DWORD, hInstance: DWORD
 	LOCAL lvi:LV_ITEM
 
 	invoke CreateWindowEx, NULL, addr ListViewClassName, NULL, \
-			LVS_LIST+WS_CHILD+WS_VISIBLE+LVS_SHOWSELALWAYS, 0, 170, 500, 430, hWnd, NULL, hInstance, NULL
+			LVS_LIST+WS_CHILD+WS_VISIBLE+LVS_SHOWSELALWAYS+LVS_REPORT+LVS_EX_GRIDLINES,\
+			0, 170, 500, 430, hWnd, NULL, hInstance, NULL
 
 
 	mov hList, eax

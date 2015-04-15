@@ -1,12 +1,13 @@
-_GetFileName	PROTO
-;_PlayMP3		PROTO
-PlayMP3			PROTO, musicPath: PTR BYTE
-VolumeAdjust	PROTO, vPos: DWORD
-_PausePlayMP3	PROTO
-_StopPlayMP3	PROTO
-_SeekMP3		PROTO
+_GetFileName		PROTO
+PlayMP3				PROTO, musicPath: PTR BYTE
+VolumeAdjust		PROTO, vPos: DWORD
+_PausePlayMP3		PROTO
+_StopPlayMP3		PROTO
+_SeekMP3			PROTO
 _AutochangePosition	PROTO
-GetListFileName PROTO
+_GetTotalTime		PROTO
+GetListFileName		PROTO
+getTimeString		PROTO, time: DWORD
 
 ID_BROWSE		equ		1001
 ID_FILE			equ		1002

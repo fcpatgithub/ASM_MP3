@@ -67,7 +67,7 @@ CreatePlayButton PROC,
 		windowWidth / 2 - 25, 50, 50, 50, hWnd, playBtn_ID, hIns, NULL
 	mov hPlayButton, eax
 	INVOKE SetImage, hPlayButton, hPlay	
-	INVOKE CreateEllipticRgn, 0, 0, 50, 50
+	INVOKE CreateEllipticRgn, 5, 5, 45, 45
 	INVOKE SetWindowRgn, hPlayButton, eax, TRUE
 	ret
 
@@ -218,7 +218,6 @@ PlaybackButtonClicked ENDP
 ;********************************************************************
 CreateStatic PROC,
 	hWnd: DWORD, hIns: DWORD
-
 	invoke CreateWindowEx,NULL,ADDR EditClass,ADDR EditClass,
                    WS_VISIBLE or WS_CHILD,20,20,50,20,hWnd,STATIC1_ID,
                    hIns,NULL
