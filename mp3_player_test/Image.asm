@@ -28,6 +28,7 @@ extern h1Single		: DWORD
 extern h2Repeat		: DWORD
 extern h3Cycle		: DWORD
 extern h4Random		: DWORD
+extern hBg			: DWORD
 
 .code
 

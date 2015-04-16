@@ -38,8 +38,9 @@ ListName			db PATH_LEN dup (0)
 Delete	            db "Delete",0
 ShowStr				BYTE 100 dup (?)
 DTime				BYTE 100 dup (?)
-img					BYTE "C:\Users\fcp\Documents\GitHub\ASM_MP3\mp3_player_test\resource\image\bg.bmp", 0
-hBg					DWORD ?
+;img					BYTE "C:\Users\fcp\Documents\GitHub\MP3_Player\mp3_player_test\resource\image\bg.bmp", 0
+img					BYTE "\resource\image\bg.bmp", 0
+img2				BYTE 1000 dup (?)
 
 className   BYTE "ASMWin",0
 
@@ -60,9 +61,11 @@ extrn hPlay			: DWORD
 extrn h1Single		: DWORD
 extrn h2Repeat		: DWORD 
 extrn h3Cycle		: DWORD
-extrn h4Random		: DWORD 
+extrn h4Random		: DWORD
+extern hBg			: DWORD
 extrn hModeButton	: DWORD
 extrn PlayMode		: DWORD
+extern workPath		: BYTE
 .code
 
 ChangePlayMode PROC
@@ -684,10 +687,13 @@ CreateListWin PROC, hWnd: DWORD
 	invoke SendMessage,hList,LVM_SETTEXTBKCOLOR,0,eax
 
 	mov lvbk.ulFlags, LVBKIF_SOURCE_URL or LVBKIF_STYLE_TILE
+;	INVOKE szappend, img, workPath, ADDR img2
+	INVOKE szCopy, ADDR workPath, ADDR img2
+	INVOKE szCatStr, ADDR img2, ADDR img
 	mov eax, hBg
 	mov lvbk.hbm, eax
-	mov lvbk.pszImage, OFFSET img
-	mov lvbk.cchImageMax, SIZEOF img
+	mov lvbk.pszImage, OFFSET img2
+	mov lvbk.cchImageMax, SIZEOF img2
 	mov lvbk.xOffsetPercent, 100
 	mov lvbk.yOffsetPercent, 100
 	invoke CoInitialize, NULL

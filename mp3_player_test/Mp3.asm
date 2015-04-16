@@ -70,6 +70,7 @@ public h1Single
 public h2Repeat
 public h3Cycle
 public h4Random
+public hBg
 public hModeButton
 public PlayMode
 
@@ -102,6 +103,7 @@ h1Single			DWORD ?
 h2Repeat			DWORD ?
 h3Cycle				DWORD ?
 h4Random			DWORD ?
+hBg					DWORD ?
 hList				dd  ?
 hMixer				DWORD ?
 volume				MIXERCONTROLDETAILS_SIGNED <?>
@@ -123,6 +125,7 @@ WindowName  BYTE "MP3 Player",0
 className   BYTE "ASMWin",0
 config		BYTE "config",0
 
+public workPath
 workPath	BYTE 1000 dup (?)
 
 ; Define the Application's Window class structure.
@@ -222,10 +225,10 @@ WinProc PROC,
 		.ELSEIF bx == playBtn_ID
 			INVOKE SwitchTrackState
 		.ELSEIF bx == nextBtn_ID
-			INVOKE PlaybackButtonClicked, 1
+;			INVOKE PlaybackButtonClicked, 1
 			INVOKE NextMusic
 		.ELSEIF bx == previousBtn_ID
-			INVOKE PlaybackButtonClicked, 0
+;			INVOKE PlaybackButtonClicked, 0
 			INVOKE PreviousMusic
 		.ELSEIF bx == modeBtn_ID
 			INVOKE ChangePlayMode
