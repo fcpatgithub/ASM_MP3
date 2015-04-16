@@ -78,6 +78,9 @@ GetListFileName proc
 		mov	stOpenFileName.lpstrTitle,offset szTitleSave
 		;mov	stOpenFileName.lpstrDefExt,offset szExt
 		invoke	GetOpenFileName,offset stOpenFileName
+		.IF EAX != 1
+			ret
+		.ENDIF
 		invoke	SetCurrentDirectory, ADDR workPath
 		.if	eax == FALSE
 			ret
@@ -148,6 +151,9 @@ _GetFileName	proc
 		mov	stOpenFileName.lpstrTitle,offset szTitleSave
 		mov	stOpenFileName.lpstrDefExt,offset szExt
 		invoke	GetOpenFileName,offset stOpenFileName
+		.IF EAX != 1
+			ret
+		.ENDIF
 		invoke	SetCurrentDirectory, ADDR workPath
 		.if	eax == FALSE
 			ret
